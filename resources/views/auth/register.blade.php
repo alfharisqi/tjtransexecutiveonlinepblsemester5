@@ -9,7 +9,7 @@
   <body>
     <div class="background"></div>
     <div class="card">
-        <img class="logo" src="{{ asset('images/LogoSonic.png') }}" />
+        <img class="logo" src="{{ asset('images/tjulogo.png') }}" />
         <h2>REGISTER YOUR ACCOUNT</h2>      
 
     <form method="POST" action="{{ route('register') }}">

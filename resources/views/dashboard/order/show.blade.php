@@ -8,8 +8,8 @@
   {{-- Sidebar --}}
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a href="/dashboard" class="brand-link">
-      <img src="{{ asset('favicon.ico') }}" class="brand-image img-circle elevation-3" style="opacity:.8" alt="Sonic">
-      <span class="brand-text font-weight-light">Sonic</span>
+      <img src="{{ asset('favicon.ico') }}" class="brand-image img-circle elevation-3" style="opacity:.8" alt="TJ Trans Executive">
+      <span class="brand-text font-weight-light">TJ Trans Executive</span>
     </a>
     <x-front-sidemenu></x-front-sidemenu>
   </aside>
@@ -162,7 +162,7 @@
   </div>
 
   <footer class="main-footer">
-    <strong>Sonic &copy; 2024.</strong> All rights reserved.
+    <strong>TJ Trans Executive &copy; 2025.</strong> All rights reserved.
   </footer>
 
   <aside class="control-sidebar control-sidebar-dark"></aside>

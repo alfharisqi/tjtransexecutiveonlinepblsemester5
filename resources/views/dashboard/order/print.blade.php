@@ -1,131 +1,156 @@
 @extends('layouts.front')
 
 @section('front')
+
+<style>
+    @media print {
+        @page {
+            size: A4 portrait;
+            margin: 15mm; /* Beri margin semua sisi */
+        }
+
+        body {
+            font-size: 9px;
+            margin: 0;
+        }
+
+        .invoice {
+            margin: 0 15mm; /* Tambahkan margin kiri-kanan eksplisit */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8px;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: left;
+            word-break: break-word;
+        }
+
+        h2.page-header img {
+            max-width: 120px;
+            height: auto;
+        }
+    }
+
+    .invoice {
+        margin: 20px auto;
+        max-width: 180mm; /* Batasi lebar supaya tidak tembus A4 (210mm - margin) */
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+</style>
+
+
     <div class="wrapper">
-        <!-- Main content -->
-        <section class="invoice" style="margin: 30px; border: none">
-            <!-- title row -->
+        <section class="invoice">
             <div class="row">
                 <div class="col-12">
                     <h2 class="page-header">
-                        <img src="{{ asset('dist/img/LogoSonic.png') }}" alt="Sonic Logo" width="220">
+                        <img src="{{ asset('images/tjulogo.png') }}" alt="Tjtrans Logo">
                     </h2>
                 </div>
-                <!-- /.col -->
             </div>
-            <!-- info row -->
+
             <div class="row invoice-info">
                 <div class="col-sm-4 invoice-col">
-                    <br>
-                    <br>
                     <address>
-                        <strong>Sonic</strong><br>
-                        Jl. Dr. Sudirman<br>
-                        Kec. Medan Barat<br>
-                        Phone: 081384002161<br>
-                        Email: sonicticket@gmail.com
+                        <strong>TJ Trans Executive</strong><br>
+                        Bukit Tinggi, Kalimantan Tengah<br>
+                        Telp: 081384002161<br>
+                        Email: tjtransexecutive@gmail.com
                     </address>
                 </div>
-                <!-- /.col -->
+
                 <div class="col-sm-4 invoice-col">
-
-                    <br>
-                    <br>
                     <address>
-                        @isset($order->user->phone_number)
-                            <strong>{{ $order->user->name }}</strong>
-                        @endisset
-
-                        @isset($order->user->phone_number)
-                            <br> Phone: {{ $order->user->phone_number }}
-                        @endisset
-
-                        @isset($order->user->email)
-                            <br> Email: {{ $order->user->email }}
-                        @endisset
-
+                        {{ $order->user->name ?? '-' }}<br>
+                        {{ $order->user->email ?? '-' }}
                     </address>
                 </div>
-                <!-- /.col -->
+
                 <div class="col-sm-4 invoice-col">
-                    <br>
-                    <br>
                     <b>Invoice #{{ $order->order_code }}</b><br>
                     <b>Order ID:</b> {{ $order->order_code }}<br>
                     @isset($order->transaction->method->method)
-                        <b>Metode Pembayaran :</b> {{ $order->transaction->method->method }}
-                        <br>
+                        <b>Pembayaran:</b> {{ $order->transaction->method->method }}<br>
                     @endisset
-
-                    <b>Payment date:</b> {{ $order->transaction->updated_at }}<br>
+                    <b>Tanggal Bayar:</b> {{ $order->transaction->updated_at }}
                 </div>
-                <!-- /.col -->
             </div>
-            <!-- /.row -->
+
             <br>
-            <!-- Table row -->
+
             <div class="row">
                 <div class="col-12 table-responsive">
-                    <table class="table table-striped">
+                    <table>
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Kereta</th>
+                                <th>ID Booking</th>
+                                <th>Penumpang</th>
+                                <th>Kursi</th>
+                                <th>Penjemputan</th>
+                                <th>Armada</th>
                                 <th>Kelas</th>
                                 <th>Rute</th>
-                                <th>Tanggal Pergi</th>
-                                <th>Jadwal Perjalanan</th>
+                                <th>Tanggal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($order->passengers as $passenger)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $order->ticket->train->name }}</td>
-                                    <td>{{ $order->ticket->train->class }}</td>
-                                    <td>{{ $order->ticket->track->from_route }} - {{ $order->ticket->track->to_route }}
-                                    </td>
-                                    <td>{{ $order->go_date }}</td>
-                                    <td>{{ $order->ticket->departure_time }} s.d {{ $order->ticket->arrival_time }}WIB</td>
-                                </tr>
-                            @endforeach
+                            <tr>
+                                <td>1</td>
+                                <td>{{ $order->order_code ?? '-' }}</td>
+                                <td>
+                                    @if ($order->passengers->count())
+                                        @foreach ($order->passengers as $index => $passenger)
+                                            {{ $index + 1 }}. {{ $passenger->name }} ({{ $passenger->gender ? 'L' : 'P' }})<br>
+                                        @endforeach
+                                    @else
+                                        Tidak ada data
+                                    @endif
+                                </td>
+                                                    <td>
+                                                        @if (!empty($order->selected_seats))
+                                                            {{ implode(', ', $order->selected_seats) }}
+                                                        @else
+                                                            Tidak ada kursi
+                                                        @endif
+                                                    </td>
+
+                                <td>{{ $order->alamat_lengkap ?? '-' }}</td>
+                                <td>{{ $order->ticket->train->name ?? '-' }}</td>
+                                <td>{{ $order->ticket->train->class ?? '-' }}</td>
+                                <td>
+                                    @isset($order->ticket->track->from_route, $order->ticket->track->to_route)
+                                        {{ $order->ticket->track->from_route }} - {{ $order->ticket->track->to_route }}
+                                    @else
+                                        -
+                                    @endisset
+                                </td>
+                                <td>{{ $order->go_date ?? '-' }}</td>
+                            </tr>
+                            <!-- TOTAL row -->
+                            <tr>
+                                <td colspan="8" style="text-align: right; font-weight: bold;">Total:</td>
+                                <td style="font-weight: bold;">Rp {{ $order->transaction->total }}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
-                <!-- /.col -->
             </div>
-            <!-- /.row -->
 
-            <div class="row">
-                <!-- accepted payments column -->
-                <div class="col-6">
-
-                </div>
-                <!-- /.col -->
-                <div class="col-6">
-
-                    <div class="table-responsive">
-                        <table class="table">
-                            <tr>
-                                <th>Total:</th>
-                                <td style="font-weight: bold">Rp {{ $order->transaction->total }}</td>
-                            </tr>
-                        </table>
-                    </div>
-
-                </div>
-                <!-- /.col -->
-            </div>
-            <!-- /.row -->
         </section>
-        <!-- /.content -->
     </div>
-    <!-- ./wrapper -->
+
 @endsection
 
 <script type="text/javascript">
-    <!--
     window.print();
-    //
-    -->
 </script>

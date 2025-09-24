@@ -20,7 +20,7 @@ class DummyUsersSeeder extends Seeder
                 'email'=>'admintjtransexeutive@gmail.com',
                 'role'=>'admin',
                 'email_verified_at'=> now(),
-                'password'=>bcrypt('tjtransexeutiveonline'),
+                'password'=>bcrypt('tjtransexeutiveonline12345'),
             
             ]
 
