@@ -35,4 +35,14 @@ class Order extends Model
     {
         return $this->hasMany(Complaint::class);
     }
+    public function seats()
+    {
+        return $this->hasMany(\App\Models\OrderSeat::class);
+    }
+    public function transactions()
+{
+    return $this->hasMany(\App\Models\Transaction::class);
+}
+
+
 }

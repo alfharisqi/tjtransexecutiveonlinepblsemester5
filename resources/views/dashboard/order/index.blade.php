@@ -150,6 +150,8 @@
 
                                                     </td>
                                                     <td>
+                                                        {{-- Tombol Detail (biru) --}}
+                                                        <a href="{{ route('orders.show', $order) }}" class="btn btn-primary btn-xs">Detail</a>
                                                         @can('isAdmin')
                                                             <a href="/print?order={{ $order->order_code }}" target="_blank">
                                                                 <button class="btn btn-success btn-xs"
@@ -164,6 +166,8 @@
                                                                 </a>
                                                             @endif
                                                         @endcan
+
+
 
                                                         @can('isCustomer')
                                                             @if ($order->transaction->status == false)

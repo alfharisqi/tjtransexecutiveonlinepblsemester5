@@ -40,14 +40,7 @@ class TrackController extends Controller
         $validatedData = $request->validate([
             'from_route' => ['required'],
             'to_route' => ['required'],
-            'travel_time' => ['required', 'date_format:H:i'],
         ]);
-
-        // Ensure travel_time is stored in HH:MM:SS format
-        $timeParts = explode(':', $validatedData['travel_time']);
-        if (count($timeParts) == 2) {
-            $validatedData['travel_time'] = $validatedData['travel_time'] . ':00';
-        }
 
         if (Track::where('from_route', $request['from_route'])->where('to_route', $request['to_route'])->first()) {
             return redirect('/tracks')->with('sameRoute', 'Rute tersebut sudah ada di database!');

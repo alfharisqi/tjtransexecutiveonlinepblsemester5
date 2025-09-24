@@ -189,9 +189,9 @@
 					<p>Sonic yang berarti kecepatan. Ini menandakan website
 						kami memberi respon dengan cepat dan bisa diandalkan. Sesuai dengan kebutuhan pengguna kami.</p>
 					<ul class="ftco-footer-social list-unstyled float-md-left float-lft">
-						<li class="ftco-animate"><a href="https://www.instagram.com/sonicjourneyy?igsh=ZmxzMzM1c201ancx&utm_source=qr" target="_blank"><span class="fa fa-twitter"></span></a></li>
+						<li class="ftco-animate"><a href="" target="_blank"><span class="fa fa-twitter"></span></a></li>
 						<li class="ftco-animate"><a href="" target="_blank"><span class="fa fa-facebook"></span></a></li>
-						<li class="ftco-animate"><a href="https://www.instagram.com/sonicjourneyy?igsh=ZmxzMzM1c201ancx&utm_source=qr" target="_blank"><span class="fa fa-instagram"></span></a></li>
+						<li class="ftco-animate"><a href="" target="_blank"><span class="fa fa-instagram"></span></a></li>
 					</ul>
 				</div>
 			</div>
@@ -200,10 +200,10 @@
 					<h2 class="ftco-heading-2">Have a Questions?</h2>
 					<div class="block-23 mb-3">
 						<ul>
-							<li><span class="icon fa fa-map-marker"></span><span class="text">Gedung C Fasilkom-TI, Universitas Sumatera Utara, Jl. Alumni No.3, Padang Bulan, Kec. Medan Baru, Kota Medan, Sumatera Utara 20155</span></li>
-							<li><a href="https://wa.me/6281260679408?text=Ingin%20Melaporkan%20Masalah"><span class="icon fa fa-whatsapp"></span><span class="text">081260679408 Admin 1(Petra)
+							<li><span class="icon fa fa-map-marker"></span><span class="text">Gedung Sonic, Jl. Berdikari No.1, Kota Medan, Sumatera Utara</span></li>
+							<li><a href=""><span class="icon fa fa-whatsapp"></span><span class="text">081289889888 Admin 1
 										</span></a></li>
-							<li><a href="https://wa.me/6281364981832?text=Ingin%20Melaporkan%20Masalah"><span class="icon fa fa-whatsapp"></span><span class="text">081364981832 Admin 2(syuja)
+							<li><a href=""><span class="icon fa fa-whatsapp"></span><span class="text">081365655656 Admin 2
 										</span></a></li>
 							<li><a href="#"><span class="icon fa fa-paper-plane"></span><span class="text">Sonic@gmail.com</span></a></li>
 						</ul>

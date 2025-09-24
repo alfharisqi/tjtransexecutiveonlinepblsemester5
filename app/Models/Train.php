@@ -11,6 +11,10 @@ class Train extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'layout' => 'array',
+    ];
+
     public function tickets()
     {
         return $this->hasMany(Ticket::class);

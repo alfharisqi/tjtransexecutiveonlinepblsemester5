@@ -24,7 +24,7 @@
 						<span class="fa fa-map-marker"></span>
 					</div>
 					<h3 class="mb-2">Address</h3>
-					<p>Gedung C Fasilkom-TI, Universitas Sumatera Utara, Jl. Alumni No.3, Padang Bulan, Kec. Medan Baru, Kota Medan, Sumatera Utara 20155</p>
+					<p>Gedung Sonic, Jl. Berdikari No.1, Kota Medan, Sumatera Utara</p>
 				</div>
 			</div>
 			<div class="col-md-4 d-flex">
@@ -33,8 +33,8 @@
 						<span class="fa fa-phone"></span>
 					</div>
 					<h3 class="mb-4">Contact Number</h3>
-					<p><a href="https://wa.me/6281260679408?text=Ingin%20Melaporkan%20Masalah">081260679408 Admin 1(Petra)</a></p>
-					<p><a href="https://wa.me/6281364981832?text=Ingin%20Melaporkan%20Masalah">081364981832 Admin 1(Syuja)</a></p>
+					<p><a href="">081289889888 Admin 1</a></p>
+					<p><a href="">081365655656 Admin 2</a></p>
 				</div>
 			</div>
 			<div class="col-md-4 d-flex">
@@ -43,7 +43,7 @@
 						<span class="fa fa-paper-plane"></span>
 					</div>
 					<h3 class="mb-4">Email Address</h3>
-					<p><a href="mailto:sonicticket@gmail.com">sonic@gmail.com</a></p>
+					<p><a href="">sonic@gmail.com</a></p>
 				</div>
 			</div>
 		</div>
@@ -55,7 +55,7 @@
 	<div class="container">
 		<div class="row block-9">
 			<div class="col-md-12 d-flex justify-content-center">
-				<iframe src="https://www.google.com/maps/d/u/0/embed?mid=1eBukMCmT6gtQXaLc3dEO-lQ7tvVCAT4&ehbc=2E312F&noprof=1" width="640" height="480"></iframe>			</div>
+				<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d17369.298718392976!2d98.65548651245255!3d3.521155965113896!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sid!2sid!4v1737608996356!5m2!1sid!2sid" width="640" height="480" loading="lazy"></iframe>			</div>
 		</div>
 	</div>
 </section>
@@ -70,9 +70,9 @@
 					<p>Sonic yang berarti kecepatan. Ini menandakan website
 						kami memberi respon dengan cepat dan bisa diandalkan. Sesuai dengan kebutuhan pengguna kami.</p>
 					<ul class="ftco-footer-social list-unstyled float-md-left float-lft">
-						<li class="ftco-animate"><a href="https://www.instagram.com/sonicjourneyy?igsh=ZmxzMzM1c201ancx&utm_source=qr" target="_blank"><span class="fa fa-twitter"></span></a></li>
+						<li class="ftco-animate"><a href="" target="_blank"><span class="fa fa-twitter"></span></a></li>
 						<li class="ftco-animate"><a href="" target="_blank"><span class="fa fa-facebook"></span></a></li>
-						<li class="ftco-animate"><a href="https://www.instagram.com/sonicjourneyy?igsh=ZmxzMzM1c201ancx&utm_source=qr" target="_blank"><span class="fa fa-instagram"></span></a></li>
+						<li class="ftco-animate"><a href="" target="_blank"><span class="fa fa-instagram"></span></a></li>
 					</ul>
 				</div>
 			</div>
@@ -81,10 +81,10 @@
 					<h2 class="ftco-heading-2">Have a Questions?</h2>
 					<div class="block-23 mb-3">
 						<ul>
-							<li><span class="icon fa fa-map-marker"></span><span class="text">Gedung C Fasilkom-TI, Universitas Sumatera Utara, Jl. Alumni No.3, Padang Bulan, Kec. Medan Baru, Kota Medan, Sumatera Utara 20155</span></li>
-							<li><a href="https://wa.me/6281260679408?text=Ingin%20Melaporkan%20Masalah"><span class="icon fa fa-whatsapp"></span><span class="text">081260679408 Admin 1(Petra)
+							<li><span class="icon fa fa-map-marker"></span><span class="text">Gedung Sonic, Jl. Berdikari No.1, Kota Medan, Sumatera Utara</span></li>
+							<li><a href=""><span class="icon fa fa-whatsapp"></span><span class="text">081289889888 Admin 1
 										</span></a></li>
-							<li><a href="https://wa.me/6281364981832?text=Ingin%20Melaporkan%20Masalah"><span class="icon fa fa-whatsapp"></span><span class="text">081364981832 Admin 2(syuja)
+							<li><a href=""><span class="icon fa fa-whatsapp"></span><span class="text">081365655656 Admin 2
 										</span></a></li>
 							<li><a href="#"><span class="icon fa fa-paper-plane"></span><span class="text">Sonic@gmail.com</span></a></li>
 						</ul>

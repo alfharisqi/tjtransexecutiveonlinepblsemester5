@@ -2,15 +2,6 @@
 
 <br><br>
 
-# Web Developer
-| NIM | Nama Anggota | Role |
-|-----|-----------|------|
-|231402001|[Brisbane Jovan Rivaldi Sihombing](http://instagram.com/brisbanejrs)| Back-end |
-|231402046|[Mayadi Alamsyah Putra Silalahi](http://instagram.com/mydisllhi)| Back-end |
-|231402070|[Petra Igor Keliat](http://instagram.com/petra_ik)| Front-end |
-|231402128|[Paskal Irvaldi Manik](http://instagram.com/paskalmanikk)| Back-end |
-|231402134|[Syuja Aqilsyah](http://instagram.com/syujaaql)| Front-end |
-
 
 <br><br><br><br>
 
@@ -60,12 +51,9 @@ Aplikasi Sonic bertujuan untuk menyajikan proses transaksi pemesanan tiket yang 
 
 # Panduan Menjalankan Source Code
 
-- <h3>Buat Folder di htdocs</h3>
+- <h3>Buat Folder di htdocs atau www</h3>
      
-     Buka git bash di htdocs
-     Command -> `git init`
-     Command -> `git clone https://github.com/Mayadi21/tubes-pwl-kelompok5.git`
-     Command -> `cd tubes-pwl-kelompok5`
+     Extract folder sonic.zip 
 
 - <h3>Copy File .env</h3>
 
@@ -86,7 +74,7 @@ Aplikasi Sonic bertujuan untuk menyajikan proses transaksi pemesanan tiket yang 
      Command -> `php artisan migrate`
 
 - <h3>Modifikasi File Seeder dan Jalankan</h3>
-    Dalam File Seeder, Ubah email admin mayadisilalahi@gmailcom menjadi email yang anda miliki.
+    Dalam File Seeder, Ubah email admin nerooireborn88@gmailcom menjadi email yang anda miliki.
     
     Command jalankan Seeder -> ` php artisan db:seed --class=DummyUsersSeeder `
 

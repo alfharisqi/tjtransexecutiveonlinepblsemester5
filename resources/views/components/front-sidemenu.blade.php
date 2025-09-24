@@ -105,7 +105,7 @@
                     <a href="/trains" class="nav-link {{ Request::is('trains') ? 'active' : '' }}">
                         📜
                         <p>
-                            Kereta
+                            Armada
                             <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
@@ -128,6 +128,16 @@
                         </p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('drivers.index') }}" class="nav-link {{ Request::is('drivers*') ? 'active' : '' }}">
+                        🧑‍✈️
+                        <p>
+                            Driver
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                </li>
+
             @endcan
         </ul>
     </nav>

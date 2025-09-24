@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id');
             $table->string('name');
-            $table->string('id_number');
             $table->boolean('gender');
             $table->timestamps();
         });

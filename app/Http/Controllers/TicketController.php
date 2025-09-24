@@ -6,11 +6,13 @@ use App\Models\Ticket;
 use App\Models\Train;
 use App\Models\Track;
 use App\Models\Price;
+use App\Models\Driver; // <-- tambah import Driver
 use Illuminate\Support\Facades\Log;
 
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Gate;
+use Carbon\Carbon;
 
 class TicketController extends Controller
 {
@@ -25,9 +27,10 @@ class TicketController extends Controller
 
         // if (Gate::allows('isAdmin')) {
         return view('dashboard.ticket.index', [
-            'tickets' => Ticket::all()->load('price'),
-            'trains' => Train::all(),
-            'tracks' => Track::all()
+            'tickets' => Ticket::all()->load('price'), // tetap seperti semula
+            'trains'  => Train::all(),
+            'tracks'  => Track::all(),
+            'drivers' => Driver::select('id','nama_driver')->orderBy('nama_driver')->get(), // <-- kirim ke view
         ]);
         // } else {
         //     // akses logic untuk user selain role admin
@@ -55,56 +58,49 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'train_id' => ['required'],
-            'track_id' => ['required'],
-            'price' => ['required'],
-            'departure_time' => ['required'],
+        $data = $request->validate([
+            'train_id'        => ['required','exists:trains,id'],
+            'track_id'        => ['required','exists:tracks,id'],
+            'driver_id'       => ['required','exists:drivers,id'], // <-- tambah validasi driver
+            'price'           => ['required','numeric','min:0'],
+            'departure_date'  => ['required','date'],            // yyyy-mm-dd
+            'departure_time'  => ['required','date_format:H:i'], // hh:mm
+            'arrival_date'    => ['required','date'],
+            'arrival_time'    => ['required','date_format:H:i'],
         ]);
-    
-        try {
-            // Retrieve travel_time from Track model
-            $track = Track::findOrFail($validatedData['track_id']);
-            $travelTime = $track->travel_time;
-    
-            // Parse travel_time to hours, minutes, and seconds
-            list($hours, $minutes, $seconds) = explode(':', $travelTime);
-    
-            // Calculate arrival_time
-            $departureTime = new \DateTime($validatedData['departure_time']);
-            $arrivalTime = clone $departureTime;
-            $arrivalTime->add(new \DateInterval("PT{$hours}H{$minutes}M{$seconds}S"));
-    
-            $validatedData['arrival_time'] = $arrivalTime->format('H:i:s');
-    
-            // Check if there's a ticket with the same details
-            $validateSameTicket = Ticket::where('train_id', $validatedData['train_id'])
-                                        ->where('track_id', $validatedData['track_id'])
-                                        ->where('departure_time', $validatedData['departure_time'])
-                                        ->first();
-    
-            if ($validateSameTicket) {
-                return redirect('/tickets')->with('sameTicket', 'Ticket dengan data tersebut sudah ada di database! jika ingin mengubah harga, masuk ke bagian harga!')->withInput();
-            }
-    
-            // Create ticket
-            $ticket = Ticket::create($validatedData);
-    
-            // Create price for the ticket
-            Price::create([
-                'ticket_id' => $ticket->id,
-                'price' => $validatedData['price']
-            ]);
-    
-            return redirect('/tickets')->with('success', 'Tiket berhasil ditambahkan');
-        } catch (\Exception $e) {
-            // Handle the exception and log the error
-            Log::error('Error creating ticket: ' . $e->getMessage());
-            return redirect('/tickets')->with('error', 'Error calculating arrival time. Please check your inputs.');
+
+        // Buat datetime dalam zona lokal, lalu konversi ke UTC untuk disimpan
+        $tz = 'Asia/Jakarta';
+        $departureAt = Carbon::createFromFormat('Y-m-d H:i', "{$data['departure_date']} {$data['departure_time']}", $tz)->utc();
+        $arrivalAt   = Carbon::createFromFormat('Y-m-d H:i', "{$data['arrival_date']} {$data['arrival_time']}", $tz)->utc();
+
+        if ($arrivalAt->lt($departureAt)) {
+            return back()->withInput()->with('error', 'Waktu tiba tidak boleh lebih awal dari waktu berangkat.');
         }
+
+        // Cek duplikat (opsional, definisi duplikat sesuai kebijakan)
+        $exists = Ticket::where([
+            'train_id' => $data['train_id'],
+            'track_id' => $data['track_id'],
+        ])->where('departure_at', $departureAt)->exists();
+
+        if ($exists) {
+            return back()->withInput()->with('sameTicket', 'Ticket sudah ada. Untuk ubah harga gunakan menu Harga.');
+        }
+
+        $ticket = Ticket::create([
+            'train_id'     => $data['train_id'],
+            'track_id'     => $data['track_id'],
+            'driver_id'    => $data['driver_id'], // <-- simpan driver ke tiket
+            'departure_at' => $departureAt,
+            'arrival_at'   => $arrivalAt,
+        ]);
+
+        // Simpan harga
+        Price::create(['ticket_id' => $ticket->id, 'price' => $data['price']]);
+
+        return redirect('/tickets')->with('success', 'Tiket berhasil ditambahkan.');
     }
-    
-        
 
     /**
      * Display the specified resource.
@@ -136,7 +132,32 @@ class TicketController extends Controller
      */
     public function update(Request $request, Ticket $ticket)
     {
-        //
+        $data = $request->validate([
+            'train_id'        => ['required','exists:trains,id'],
+            'track_id'        => ['required','exists:tracks,id'],
+            'departure_date'  => ['required','date'],
+            'departure_time'  => ['required','date_format:H:i'],
+            'arrival_date'    => ['required','date'],
+            'arrival_time'    => ['required','date_format:H:i'],
+            // (opsional) price_update terpisah pada modul harga
+        ]);
+
+        $tz = 'Asia/Jakarta';
+        $departureAt = Carbon::createFromFormat('Y-m-d H:i', "{$data['departure_date']} {$data['departure_time']}", $tz)->utc();
+        $arrivalAt   = Carbon::createFromFormat('Y-m-d H:i', "{$data['arrival_date']} {$data['arrival_time']}", $tz)->utc();
+
+        if ($arrivalAt->lt($departureAt)) {
+            return back()->withInput()->with('error', 'Waktu tiba tidak boleh lebih awal dari waktu berangkat.');
+        }
+
+        $ticket->update([
+            'train_id'     => $data['train_id'],
+            'track_id'     => $data['track_id'],
+            'departure_at' => $departureAt,
+            'arrival_at'   => $arrivalAt,
+        ]);
+
+        return redirect('/tickets')->with('success', 'Tiket berhasil diperbarui.');
     }
 
     /**

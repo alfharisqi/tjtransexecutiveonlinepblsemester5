@@ -114,13 +114,6 @@
                                                                             name="to_route"
                                                                             placeholder="Masukkan Lokasi Tujuan">
                                                                     </div>
-
-                                                                    <div class="form-group row">
-                                                                        <label class="col-sm-3 col-form-label">Lama Perjalanan</label>
-                                                                        <input type="time" class="col-sm-9 form-control"
-                                                                            name="travel_time"
-                                                                            placeholder="MasukkanLama Perjalanan">
-                                                                    </div>
                                                                 </div>
 
                                                                 <div class="modal-footer">
@@ -144,8 +137,7 @@
                                                 <th>No</th>
                                                 <th>ID</th>
                                                 <th>Lokasi Berangkat</th>
-                                                <th>Lokasi Tujuan</th>
-                                                <th>Lama Perjalanan</th>                               
+                                                <th>Lokasi Tujuan</th>                           
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -168,11 +160,6 @@
                                                     <td>
                                                         @isset($track->to_route)
                                                             {{ $track->to_route }}
-                                                        @endisset
-                                                    </td>
-                                                    <td>
-                                                        @isset($track->travel_time)
-                                                            {{ $track->travel_time }}
                                                         @endisset
                                                     </td>
                                                     <td>
