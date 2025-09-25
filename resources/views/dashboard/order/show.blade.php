@@ -131,7 +131,6 @@
                           @endif
                         </div>
                         <div><strong>Umur:</strong> {{ $p->umur_penumpang ?? '-' }}</div>
-
                       </li>
                     @endforeach
                   </ol>
@@ -153,6 +152,28 @@
                 @endif
               </div>
             </div>
+
+            {{-- === Foto Metode Pembayaran === --}}
+            <div class="card">
+              <div class="card-header"><h3 class="card-title">Metode Pembayaran</h3></div>
+              <div class="card-body text-center">
+                @php
+                  $method = $order->transaction->method ?? null;
+                @endphp
+                @if($method?->foto_method)
+                  <img src="{{ asset('storage/'.$method->foto_method) }}"
+                       alt="{{ $method->method ?? 'Metode Pembayaran' }}"
+                       style="max-width:100%;max-height:180px;object-fit:contain;border:1px solid #ddd;border-radius:8px;">
+                  <div class="mt-2">
+                    <strong>{{ $method->method ?? '-' }}</strong><br>
+                    <small class="text-muted">{{ $method->target_account ?? '' }}</small>
+                  </div>
+                @else
+                  <span class="text-muted">Data metode pembayaran tidak tersedia.</span>
+                @endif
+              </div>
+            </div>
+            {{-- === /Foto Metode Pembayaran === --}}
 
           </div>
         </div>

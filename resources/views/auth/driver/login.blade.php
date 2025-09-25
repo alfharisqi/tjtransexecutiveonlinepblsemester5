@@ -105,14 +105,14 @@
         
         <!-- Bagian Kiri -->
         <div class="auth-left">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="auth-logo">
+            <img src="{{ asset('images/tjulogo.png') }}" alt="Logo" class="auth-logo">
             <h3 class="auth-title">Login to Your<br>Account</h3>
         </div>
         
         <!-- Bagian Kanan -->
         <div class="auth-right">
             <p class="auth-register">
-                Belum punya akun? Hubungi Admin untuk melihat detail akun anda
+                Belum punya akun Driver? Hubungi Admin untuk melihat detail akun anda
             </p>
 
             @if ($errors->any())

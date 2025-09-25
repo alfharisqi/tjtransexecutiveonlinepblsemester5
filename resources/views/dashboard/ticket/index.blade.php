@@ -104,7 +104,7 @@
                                                             <div class="form-group row">
                                                                 <label for="track_id" class="col-sm-3 col-form-label">Rute</label>
                                                                 <div class="col-sm-9">
-                                                                    <select name="track_id" id="track_id" class="form-control" onchange="getSelectValue && getSelectValue(this.value);" required>
+                                                                    <select name="track_id" id="track_id" class="form-control" required>
                                                                         <option selected value="" disabled>Pilih Rute</option>
                                                                         @foreach ($tracks as $track)
                                                                             <option value="{{ $track->id }}" @selected(old('track_id') == $track->id)>
@@ -201,9 +201,9 @@
                                             <th>Kelas</th>
                                             <th>Pergi dari</th>
                                             <th>Tujuan ke</th>
-                                            <th>Berangkat (WIB)</th>
-                                            <th>Tiba (WIB)</th>
-                                            <th>Driver</th> {{-- BARU --}}
+                                            <th>Berangkat</th>
+                                            <th>Tiba</th>
+                                            <th>Driver</th>
                                             <th>Jumlah Harga</th>
                                             @can('isAdmin')
                                                 <th>Action</th>
@@ -219,23 +219,23 @@
                                                 <td>{{ $ticket->track->from_route ?? 'Tidak dapat ditampilkan' }}</td>
                                                 <td>{{ $ticket->track->to_route ?? 'Tidak dapat ditampilkan' }}</td>
 
-                                                {{-- Tampilkan datetime baru (departure_at/arrival_at) dalam WIB --}}
+                                                {{-- Fix datetime manual --}}
                                                 <td>
                                                     @if ($ticket->departure_at)
-                                                        {{ $ticket->departure_at->timezone('Asia/Jakarta')->format('d M Y H:i') }}
+                                                        {{ \Carbon\Carbon::parse($ticket->departure_at)->format('d M Y H:i') }}
                                                     @else
                                                         Tidak dapat ditampilkan
                                                     @endif
                                                 </td>
                                                 <td>
                                                     @if ($ticket->arrival_at)
-                                                        {{ $ticket->arrival_at->timezone('Asia/Jakarta')->format('d M Y H:i') }}
+                                                        {{ \Carbon\Carbon::parse($ticket->arrival_at)->format('d M Y H:i') }}
                                                     @else
                                                         Tidak dapat ditampilkan
                                                     @endif
                                                 </td>
 
-                                                {{-- Driver (BARU) --}}
+                                                {{-- Driver --}}
                                                 <td>
                                                     {{ optional($ticket->driver)->nama_driver ?? 'Belum ditetapkan' }}
                                                 </td>
@@ -273,7 +273,6 @@
                                                         </div>
 
                                                         <div class="modal-body">
-                                                            {{-- Form khusus ubah harga (biarkan sesuai route prices) --}}
                                                             <form action="/prices/{{ $ticket->price ? $ticket->price->id : '' }}" method="POST" class="mb-3">
                                                                 @method('PUT')
                                                                 @csrf
@@ -293,28 +292,6 @@
 
                                                                 <button type="submit" class="btn btn-success">Simpan</button>
                                                             </form>
-
-                                                            {{-- (Opsional) Form kecil untuk ubah Driver pakai route tickets.update (hapus bila belum ada routenya) --}}
-                                                            {{-- 
-                                                            <form action="/tickets/{{ $ticket->id }}" method="POST">
-                                                                @method('PUT')
-                                                                @csrf
-                                                                <div class="form-group row">
-                                                                    <label for="driver_id_{{ $ticket->id }}" class="col-sm-3 col-form-label">Ubah Driver</label>
-                                                                    <div class="col-sm-9">
-                                                                        <select name="driver_id" id="driver_id_{{ $ticket->id }}" class="form-control" required>
-                                                                            <option value="" disabled>Pilih Driver</option>
-                                                                            @foreach ($drivers as $driver)
-                                                                                <option value="{{ $driver->id }}" @selected(optional($ticket->driver)->id == $driver->id)>
-                                                                                    {{ $driver->nama_driver }}
-                                                                                </option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                                <button type="submit" class="btn btn-primary">Update Driver</button>
-                                                            </form>
-                                                            --}}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -328,24 +305,14 @@
                         </div>
                         <!-- /.card -->
                     </div>
-                    <!-- /.col -->
                 </div>
-                <!-- /.row -->
             </div>
-            <!-- /.container-fluid -->
         </section>
-        <!-- /.content -->
     </div>
-    <!-- /.content-wrapper -->
 
     <footer class="main-footer">
         <strong>TJ Trans Executive &copy; 2025.</strong>
         All rights reserved.
-        <div class="float-right d-none d-sm-inline-block"></div>
     </footer>
-
-    <!-- Control Sidebar -->
-    <aside class="control-sidebar control-sidebar-dark"></aside>
-    <!-- /.control-sidebar -->
 </div>
 @endsection

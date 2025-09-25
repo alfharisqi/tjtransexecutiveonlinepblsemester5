@@ -96,7 +96,6 @@
                                     <label for="to_route">Tujuan</label>
                                     <select id="to_route" class="form-control" required>
                                       <option disabled selected value="">Pilih Tujuan</option>
-                                      {{-- akan diisi dinamis berdasarkan Asal --}}
                                     </select>
                                   </div>
                                   <div class="col-md-4">
@@ -128,11 +127,10 @@
                               <div class="step d-none" data-step="2">
                                 <h5 class="mb-3">Pilih Tiket & Kursi</h5>
 
-                                {{-- daftar tiket --}}
                                 <div id="available-tickets" class="mb-3"></div>
                                 <small id="remaining-info" class="text-muted d-block mb-2"></small>
 
-                                {{-- FOTO ARMADA (baru, hanya pakai kolom trains.foto_armada & foto_kursi) --}}
+                                {{-- FOTO ARMADA (dari trains.foto_armada & foto_kursi) --}}
                                 <div id="fleet-photo-card" class="card mb-3 d-none">
                                   <div class="card-header py-2"><strong>Armada</strong></div>
                                   <div class="card-body text-center">
@@ -182,16 +180,46 @@
                               <div class="step d-none" data-step="4">
                                 <h5 class="mb-3">Pembayaran</h5>
 
+                                {{-- PREVIEW FOTO METODE (BARU) --}}
+                                @php
+                                  // buat map data method untuk JS (id => {name, account, foto})
+                                  $methodsMap = $methods->mapWithKeys(function($m){
+                                      return [
+                                          $m->id => [
+                                              'name'   => $m->method,
+                                              'account'=> $m->target_account,
+                                              'foto'   => $m->foto_method ? asset('storage/'.$m->foto_method) : null,
+                                          ]
+                                      ];
+                                  });
+                                @endphp
+                                <script>window.__METHODS_MAP__ = @json($methodsMap);</script>
+
                                 <div class="form-row mb-2">
-                                  <div class="col-md-4">
+                                  <div class="col-md-6">
                                     <label>Metode Pembayaran</label>
-                                    <select class="form-control" name="method_id" required>
+                                    <select class="form-control" name="method_id" id="method_id" required>
                                       <option disabled selected>-- Pilih Metode --</option>
                                       @foreach ($methods as $method)
                                         <option value="{{ $method->id }}">{{ $method->method }}</option>
                                       @endforeach
                                     </select>
                                   </div>
+
+                                  <div class="col-md-6">
+                                    <div class="card" id="method-preview" style="display:none;">
+                                      <div class="card-body d-flex align-items-center">
+                                        <img id="method-foto" src="" alt="Foto metode" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-right:12px;display:none;">
+                                        <div>
+                                          <div class="font-weight-bold" id="method-name">-</div>
+                                          <div class="text-muted small">Rekening Tujuan: <span id="method-account">-</span></div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="form-row mb-2">
                                   <div class="col-md-4">
                                     <label>Atas Nama</label>
                                     <input type="text" class="form-control" name="name_account" placeholder="Nama Lengkap" required>
@@ -224,7 +252,7 @@
                           window.__TRACKS__ = @json($tracks->map(fn($t)=>[$t->from_route,$t->to_route])->values());
                         </script>
 
-                        {{-- ==== Peta ticket -> assets BARU (hanya foto_armada & foto_kursi) ==== --}}
+                        {{-- ==== Peta ticket -> assets (foto armada & kursi) ==== --}}
                         @php
                           $ticketAssets = $tickets->mapWithKeys(function($t){
                               $train = $t->train;
@@ -242,15 +270,44 @@
                           window.__TICKET_ASSETS__ = @json($ticketAssets);
                         </script>
 
+                        {{-- ==== JS Wizard (ditambah handler preview metode) ==== --}}
                         <script>
                         document.addEventListener('DOMContentLoaded', () => {
-                          // step controls
+                          // ... (JS kamu sebelumnya tetap sama)
+
+                          // --- PREVIEW FOTO METODE PEMBAYARAN (BARU) ---
+                          const methodsMap = window.__METHODS_MAP__ || {};
+                          const methodSelect = document.getElementById('method_id');
+                          const prevCard = document.getElementById('method-preview');
+                          const prevImg  = document.getElementById('method-foto');
+                          const prevName = document.getElementById('method-name');
+                          const prevAcc  = document.getElementById('method-account');
+
+                          function renderMethodPreview(id){
+                            const data = methodsMap[String(id)];
+                            if (!data) { prevCard.style.display='none'; return; }
+                            prevName.textContent = data.name || '-';
+                            prevAcc.textContent  = data.account || '-';
+                            if (data.foto) {
+                              prevImg.src = data.foto;
+                              prevImg.style.display = '';
+                            } else {
+                              prevImg.removeAttribute('src');
+                              prevImg.style.display = 'none';
+                            }
+                            prevCard.style.display = '';
+                          }
+
+                          methodSelect?.addEventListener('change', (e) => {
+                            renderMethodPreview(e.target.value);
+                          });
+
+                          // --- JS Wizard asli di bawah ini ---
                           const steps  = [...document.querySelectorAll('.step')];
                           const pills  = [...document.querySelectorAll('.nav-link[data-step]')];
                           const btnPrev = document.getElementById('btnPrev');
                           const btnNext = document.getElementById('btnNext');
 
-                          // slide 1
                           const fromSel   = document.getElementById('from_route');
                           const toSel     = document.getElementById('to_route');
                           const goDateS   = document.getElementById('go_date_search');
@@ -258,39 +315,31 @@
                           const searchMsg = document.getElementById('searchMsg');
                           const jumlahSel = document.getElementById('jumlah-penumpang');
 
-                          // hidden submit fields
                           const hiddenTicket = document.getElementById('ticket_id');
                           const hiddenDate   = document.getElementById('go_date');
                           const seatsInput   = document.getElementById('selected_seats');
 
-                          // slide 2 (UI)
                           const listWrap   = document.getElementById('available-tickets');
                           const remainingInfo = document.getElementById('remaining-info');
                           const seatMap    = document.getElementById('seat-map');
                           const seatPickedView = document.getElementById('seat-picked-view');
-                          // foto armada/kursi
+
                           const fleetCard  = document.getElementById('fleet-photo-card');
                           const fleetImg   = document.getElementById('fleet-photo');
                           const fleetName  = document.getElementById('fleet-name');
                           const seatCard   = document.getElementById('seat-photo-card');
                           const seatImg    = document.getElementById('seat-photo');
 
-                          // peta ticket->assets
                           const ticketAssets = window.__TICKET_ASSETS__ || {};
 
                           let current = 1;
-
-                          // state
-                          let ticketsFound = [];   // {ticket_id,label,remaining}
+                          let ticketsFound = [];
                           let selectedTicketId = null;
                           let occupiedSeats = [];
                           let selectedSeats = [];
                           let remaining = 0;
 
-                          // layout dari server
                           let layoutMatrix = [];
-
-                          // guards
                           let canProceedToStep2 = false;
                           let lastSearchToken   = null;
                           let selectedToken     = null;
@@ -367,7 +416,6 @@
                             }
                           }
 
-                          // dependent dropdown Asal → Tujuan
                           const tracks = (window.__TRACKS__ || []);
                           function refreshToOptions() {
                             if (!toSel || !fromSel) return;
@@ -395,14 +443,11 @@
                           function renderSeatMap() {
                             if (!seatMap) return;
                             seatMap.innerHTML = '';
-
                             if (!Array.isArray(layoutMatrix) || !layoutMatrix.length) {
                               seatMap.innerHTML = '<div class="text-danger">Layout kursi tidak tersedia.</div>';
                               return;
                             }
-
                             const occSet = new Set((occupiedSeats || []).map(String));
-
                             layoutMatrix.forEach(row => {
                               const wrap = document.createElement('div'); wrap.className='d-flex';
                               row.forEach(cell => {
@@ -415,11 +460,9 @@
                                 const code = String(cell);
                                 const div  = document.createElement('div');
                                 const occ  = occSet.has(code);
-
                                 div.className = 'seat' + (occ ? ' occupied' : '');
                                 div.dataset.seat = code;
                                 div.textContent  = code;
-
                                 if (!occ) {
                                   if (selectedSeats.includes(code)) div.classList.add('selected');
                                   div.addEventListener('click', () => {
@@ -439,12 +482,10 @@
                                     seatPickedView.textContent = selectedSeats.length ? selectedSeats.join(', ') : '-';
                                   });
                                 }
-
                                 wrap.appendChild(div);
                               });
                               seatMap.appendChild(wrap);
                             });
-
                             seatsInput.value = selectedSeats.join(',');
                             seatPickedView.textContent = selectedSeats.length ? selectedSeats.join(', ') : '-';
                           }
@@ -481,16 +522,10 @@
                                 selectedTicketId = Number(e.target.value);
                                 hiddenTicket.value = String(selectedTicketId);
                                 hiddenDate.value   = goDateS?.value || '';
-
-                                // tampilkan foto armada & kursi untuk tiket terpilih
                                 showPhotos(selectedTicketId);
-
-                                // reset pilihan kursi
                                 selectedSeats = [];
                                 seatsInput.value = '';
                                 seatPickedView.textContent = '-';
-
-                                // Ambil layout + occupied dari server
                                 try {
                                   const url = `{{ route('orders.availability') }}?` + new URLSearchParams({
                                     ticket_id: selectedTicketId,
@@ -502,11 +537,9 @@
                                     alert(data?.message || 'Gagal memuat layout kursi.');
                                     return;
                                   }
-
                                   layoutMatrix = Array.isArray(data.layout) ? data.layout : [];
                                   occupiedSeats = Array.isArray(data.occupied) ? data.occupied : [];
                                   remainingInfo.textContent = (typeof data.remaining === 'number') ? `Sisa kursi pada tiket ini: ${data.remaining}` : '';
-
                                   renderSeatMap();
                                   selectedToken = lastSearchToken;
                                 } catch(err) {
@@ -552,58 +585,44 @@
                           // SEARCH (Slide 1)
                           btnSearch?.addEventListener('click', async () => {
                             if (searchMsg) { searchMsg.className='ml-3'; searchMsg.textContent=''; }
-
-                            // jangan reset kalau parameter belum lengkap
                             if (!fromSel?.value || !toSel?.value || !goDateS?.value) {
                               searchMsg.classList.add('text-danger');
                               searchMsg.textContent = 'Lengkapi asal, tujuan, dan tanggal.';
                               return;
                             }
-
-                            // reset hasil lama
                             invalidateResults();
-
                             try {
                               const qs = new URLSearchParams({
                                 from_route: fromSel.value,
                                 to_route:   toSel.value,
                                 go_date:    goDateS.value
                               }).toString();
-
                               const res = await fetch(`{{ route('orders.search') }}?${qs}`, {
                                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
                               });
                               const data = await res.json();
-
                               if (!data.ok) {
                                 searchMsg.classList.add('text-danger');
-                                // Tampilkan pesan spesifik sesuai reason dari server
                                 switch (data.reason) {
                                   case 'no_route':
-                                    searchMsg.textContent = 'Rute tidak tersedia untuk kombinasi asal & tujuan tersebut.';
-                                    break;
+                                    searchMsg.textContent = 'Rute tidak tersedia untuk kombinasi asal & tujuan tersebut.'; break;
                                   case 'no_ticket_for_route':
-                                    searchMsg.textContent = 'Belum ada tiket untuk rute ini.';
-                                    break;
+                                    searchMsg.textContent = 'Belum ada tiket untuk rute ini.'; break;
                                   case 'no_ticket_on_date':
-                                    searchMsg.textContent = 'Tidak ada tiket tersedia pada tanggal tersebut.';
-                                    break;
+                                    searchMsg.textContent = 'Tidak ada tiket tersedia pada tanggal tersebut.'; break;
                                   case 'invalid_date':
-                                    searchMsg.textContent = 'Tanggal tidak valid.';
-                                    break;
+                                    searchMsg.textContent = 'Tanggal tidak valid.'; break;
                                   default:
                                     searchMsg.textContent = data.message || 'Tiket tidak tersedia.';
                                 }
                                 return;
                               }
-
                               ticketsFound   = data.tickets;
                               lastSearchToken = token();
                               canProceedToStep2 = true;
-
                               searchMsg.classList.add('text-success');
                               searchMsg.textContent = `Ditemukan ${ticketsFound.length} tiket tersedia. Klik Next untuk pilih tiket & kursi.`;
-                              hiddenDate.value = goDateS.value; // simpan tanggal
+                              hiddenDate.value = goDateS.value;
                             } catch (e) {
                               console.error(e);
                               searchMsg.classList.add('text-danger');
@@ -616,15 +635,11 @@
 
                           btnNext?.addEventListener('click', async () => {
                             if (current === 1) {
-                              if (!canProceedToStep2 || !lastSearchToken) {
-                                alert('Silakan klik "Cek Tiket" dan pastikan ada tiket tersedia.');
-                                return;
-                              }
+                              if (!canProceedToStep2 || !lastSearchToken) { alert('Silakan klik "Cek Tiket" dan pastikan ada tiket tersedia.'); return; }
                               const j = parseInt(jumlahSel?.value || '1', 10);
                               if (j < 1) { alert('Jumlah penumpang tidak valid.'); return; }
                               go(2);
                               renderTicketList();
-                              // kosongkan seat map & foto
                               occupiedSeats = [];
                               selectedSeats = []; seatsInput.value = ''; seatPickedView.textContent = '-';
                               layoutMatrix = []; seatMap.innerHTML = '';
@@ -633,7 +648,6 @@
                             }
 
                             if (current === 2) {
-                              // wajib pilih tiket, token harus cocok
                               if (!selectedTicketId) { alert('Pilih salah satu tiket dahulu.'); return; }
                               if (!canProceedToStep2 || !lastSearchToken || selectedToken !== lastSearchToken) {
                                 alert('Parameter pencarian berubah. Silakan cek tiket lagi.');
@@ -642,8 +656,6 @@
                               }
                               const j = parseInt(jumlahSel?.value || '1', 10);
                               if (selectedSeats.length !== j) { alert('Jumlah kursi dipilih harus sama dengan jumlah penumpang.'); return; }
-
-                              // re-check availability + sync layout
                               try {
                                 const url = `{{ route('orders.availability') }}?` + new URLSearchParams({
                                   ticket_id: selectedTicketId,
@@ -651,16 +663,12 @@
                                 }).toString();
                                 const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
                                 const data = await res.json();
-
                                 if (!data || data.ok === false) {
                                   alert(data?.message || 'Gagal validasi ketersediaan.');
                                   return;
                                 }
-
                                 if (Array.isArray(data.layout)) layoutMatrix = data.layout;
                                 if (Array.isArray(data.occupied)) occupiedSeats = data.occupied;
-
-                                // batalkan kalau ada bentrok
                                 const occ = new Set((occupiedSeats || []).map(String));
                                 const bentrok = selectedSeats.some(s => occ.has(String(s)));
                                 if (bentrok) {
@@ -673,8 +681,6 @@
                                 alert('Gagal validasi ketersediaan. Coba lagi.');
                                 return;
                               }
-
-                              // build forms sesuai jumlah
                               buildPassengerForms(parseInt(jumlahSel.value,10));
                               go(3);
                               return;
@@ -690,10 +696,7 @@
                             }
                           });
 
-                          // Nonaktifkan klik langsung pada pill nav
                           pills.forEach(p => p.addEventListener('click', e => e.preventDefault()));
-
-                          // init
                           go(1);
                         });
                         </script>

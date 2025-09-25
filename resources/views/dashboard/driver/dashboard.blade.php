@@ -94,61 +94,7 @@
                     });
                 @endphp
 
-                <div class="card card-outline card-primary">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title mb-0">Jadwal Driver (Mendatang)</h3>
-                        <small class="text-muted">Zona waktu: WIB</small>
-                    </div>
-                    <div class="card-body">
-                        @if ($upcoming->isEmpty())
-                            <p class="text-muted mb-0">Belum ada jadwal perjalanan mendatang.</p>
-                        @else
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Armada</th>
-                                            <th>Kelas</th>
-                                            <th>Rute</th>
-                                            <th>Berangkat</th>
-                                            <th>Tiba</th>
-                                            <th>Harga</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($upcoming as $i => $t)
-                                            <tr>
-                                                <td>{{ $i+1 }}</td>
-                                                <td>{{ $t->train->name ?? '-' }}</td>
-                                                <td>{{ $t->train->class ?? '-' }}</td>
-                                                <td>{{ ($t->track->from_route ?? '-') . ' → ' . ($t->track->to_route ?? '-') }}</td>
-                                                <td>
-                                                    @if($t->departure_at)
-                                                        {{ $t->departure_at->timezone('Asia/Jakarta')->format('d M Y H:i') }}
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($t->arrival_at)
-                                                        {{ $t->arrival_at->timezone('Asia/Jakarta')->format('d M Y H:i') }}
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @php $p = optional($t->price)->price; @endphp
-                                                    {{ $p !== null ? 'Rp '.number_format($p,0,',','.') : '-' }}
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @endif
-                    </div>
-                </div>
+
 
                 {{-- ========== 3) Daftar Tiket Driver + Lihat Penumpang & Titik Jemput ========== --}}
                 <div class="card card-outline card-warning">

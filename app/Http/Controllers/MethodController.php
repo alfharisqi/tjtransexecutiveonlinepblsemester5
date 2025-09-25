@@ -4,14 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Method;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MethodController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         return view('dashboard.method.index', [
@@ -19,95 +15,70 @@ class MethodController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'method' => ['required', 'min:3', 'max:50'],
-            'target_account' => ['required', 'min:3', 'max:50']
+            'method'         => ['required', 'min:3', 'max:50'],
+            'target_account' => ['required', 'min:3', 'max:50'],
+            'foto_method'    => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
         $check = Method::where('method', $request['method'])->first();
-
         if ($check) {
             return redirect('/methods')->with('sameMethod', 'Metode Pembayaran tersebut sudah ada di database!');
         }
 
+        if ($request->hasFile('foto_method')) {
+            $validatedData['foto_method'] = $request->file('foto_method')->store('methods', 'public');
+        }
+
         Method::create($validatedData);
 
-        return redirect('/methods')->with('update', 'Metode Pembayaran tersebut berhasil ditambahkan!');
+        return redirect('/methods')->with('update', 'Metode Pembayaran berhasil ditambahkan!');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Method  $method
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Method $method)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Method  $method
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Method $method)
     {
-        //
+        return view('dashboard.method.edit', compact('method'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Method  $method
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, Method $method)
     {
         $validatedData = $request->validate([
-            'target_account' => ['required', 'min:3', 'max:50']
+            'method'         => ['required', 'min:3', 'max:50'],
+            'target_account' => ['required', 'min:3', 'max:50'],
+            'foto_method'    => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
         $check = Method::where('id', '!=', $method->id)->where('method', $request['method'])->first();
-
         if ($check) {
             return redirect('/methods')->with('sameMethod', 'Metode pembayaran tersebut sudah ada di database!');
         }
 
+        if ($request->hasFile('foto_method')) {
+            if ($method->foto_method && Storage::disk('public')->exists($method->foto_method)) {
+                Storage::disk('public')->delete($method->foto_method);
+            }
+            $validatedData['foto_method'] = $request->file('foto_method')->store('methods', 'public');
+        }
+
         $method->update($validatedData);
 
-        return redirect('/methods')->with('update', 'Metode Pembayaran tersebut berhasil diubah!');
+        return redirect('/methods')->with('update', 'Metode Pembayaran berhasil diubah!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Method  $method
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Method $method)
     {
+        if ($method->foto_method && Storage::disk('public')->exists($method->foto_method)) {
+            Storage::disk('public')->delete($method->foto_method);
+        }
+
         $method->delete();
-        return redirect('/methods')->with('delete', 'Metode Pembayaran tersebut berhasil dihapus!');
+        return redirect('/methods')->with('delete', 'Metode Pembayaran berhasil dihapus!');
     }
 }

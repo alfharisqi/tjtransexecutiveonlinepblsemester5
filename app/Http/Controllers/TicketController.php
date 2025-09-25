@@ -57,50 +57,39 @@ class TicketController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'train_id'        => ['required','exists:trains,id'],
-            'track_id'        => ['required','exists:tracks,id'],
-            'driver_id'       => ['required','exists:drivers,id'], // <-- tambah validasi driver
-            'price'           => ['required','numeric','min:0'],
-            'departure_date'  => ['required','date'],            // yyyy-mm-dd
-            'departure_time'  => ['required','date_format:H:i'], // hh:mm
-            'arrival_date'    => ['required','date'],
-            'arrival_time'    => ['required','date_format:H:i'],
-        ]);
+{
+    $data = $request->validate([
+        'train_id'        => ['required','exists:trains,id'],
+        'track_id'        => ['required','exists:tracks,id'],
+        'driver_id'       => ['required','exists:drivers,id'],
+        'price'           => ['required','numeric','min:0'],
+        'departure_date'  => ['required','date'],
+        'departure_time'  => ['required','date_format:H:i'],
+        'arrival_date'    => ['required','date'],
+        'arrival_time'    => ['required','date_format:H:i'],
+    ]);
 
-        // Buat datetime dalam zona lokal, lalu konversi ke UTC untuk disimpan
-        $tz = 'Asia/Jakarta';
-        $departureAt = Carbon::createFromFormat('Y-m-d H:i', "{$data['departure_date']} {$data['departure_time']}", $tz)->utc();
-        $arrivalAt   = Carbon::createFromFormat('Y-m-d H:i', "{$data['arrival_date']} {$data['arrival_time']}", $tz)->utc();
+    // Gabungkan tanggal + jam tanpa konversi timezone
+    $departureAt = $data['departure_date'].' '.$data['departure_time']; // hasil string: 2025-09-04 09:00
+    $arrivalAt   = $data['arrival_date'].' '.$data['arrival_time'];
 
-        if ($arrivalAt->lt($departureAt)) {
-            return back()->withInput()->with('error', 'Waktu tiba tidak boleh lebih awal dari waktu berangkat.');
-        }
-
-        // Cek duplikat (opsional, definisi duplikat sesuai kebijakan)
-        $exists = Ticket::where([
-            'train_id' => $data['train_id'],
-            'track_id' => $data['track_id'],
-        ])->where('departure_at', $departureAt)->exists();
-
-        if ($exists) {
-            return back()->withInput()->with('sameTicket', 'Ticket sudah ada. Untuk ubah harga gunakan menu Harga.');
-        }
-
-        $ticket = Ticket::create([
-            'train_id'     => $data['train_id'],
-            'track_id'     => $data['track_id'],
-            'driver_id'    => $data['driver_id'], // <-- simpan driver ke tiket
-            'departure_at' => $departureAt,
-            'arrival_at'   => $arrivalAt,
-        ]);
-
-        // Simpan harga
-        Price::create(['ticket_id' => $ticket->id, 'price' => $data['price']]);
-
-        return redirect('/tickets')->with('success', 'Tiket berhasil ditambahkan.');
+    if (strtotime($arrivalAt) < strtotime($departureAt)) {
+        return back()->withInput()->with('error', 'Waktu tiba tidak boleh lebih awal dari waktu berangkat.');
     }
+
+    $ticket = Ticket::create([
+        'train_id'     => $data['train_id'],
+        'track_id'     => $data['track_id'],
+        'driver_id'    => $data['driver_id'],
+        'departure_at' => $departureAt,
+        'arrival_at'   => $arrivalAt,
+    ]);
+
+    Price::create(['ticket_id' => $ticket->id, 'price' => $data['price']]);
+
+    return redirect('/tickets')->with('success', 'Tiket berhasil ditambahkan.');
+}
+
 
     /**
      * Display the specified resource.
@@ -131,34 +120,33 @@ class TicketController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Ticket $ticket)
-    {
-        $data = $request->validate([
-            'train_id'        => ['required','exists:trains,id'],
-            'track_id'        => ['required','exists:tracks,id'],
-            'departure_date'  => ['required','date'],
-            'departure_time'  => ['required','date_format:H:i'],
-            'arrival_date'    => ['required','date'],
-            'arrival_time'    => ['required','date_format:H:i'],
-            // (opsional) price_update terpisah pada modul harga
-        ]);
+{
+    $data = $request->validate([
+        'train_id'        => ['required','exists:trains,id'],
+        'track_id'        => ['required','exists:tracks,id'],
+        'departure_date'  => ['required','date'],
+        'departure_time'  => ['required','date_format:H:i'],
+        'arrival_date'    => ['required','date'],
+        'arrival_time'    => ['required','date_format:H:i'],
+    ]);
 
-        $tz = 'Asia/Jakarta';
-        $departureAt = Carbon::createFromFormat('Y-m-d H:i', "{$data['departure_date']} {$data['departure_time']}", $tz)->utc();
-        $arrivalAt   = Carbon::createFromFormat('Y-m-d H:i', "{$data['arrival_date']} {$data['arrival_time']}", $tz)->utc();
+    $departureAt = $data['departure_date'].' '.$data['departure_time'];
+    $arrivalAt   = $data['arrival_date'].' '.$data['arrival_time'];
 
-        if ($arrivalAt->lt($departureAt)) {
-            return back()->withInput()->with('error', 'Waktu tiba tidak boleh lebih awal dari waktu berangkat.');
-        }
-
-        $ticket->update([
-            'train_id'     => $data['train_id'],
-            'track_id'     => $data['track_id'],
-            'departure_at' => $departureAt,
-            'arrival_at'   => $arrivalAt,
-        ]);
-
-        return redirect('/tickets')->with('success', 'Tiket berhasil diperbarui.');
+    if (strtotime($arrivalAt) < strtotime($departureAt)) {
+        return back()->withInput()->with('error', 'Waktu tiba tidak boleh lebih awal dari waktu berangkat.');
     }
+
+    $ticket->update([
+        'train_id'     => $data['train_id'],
+        'track_id'     => $data['track_id'],
+        'departure_at' => $departureAt,
+        'arrival_at'   => $arrivalAt,
+    ]);
+
+    return redirect('/tickets')->with('success', 'Tiket berhasil diperbarui.');
+}
+
 
     /**
      * Remove the specified resource from storage.

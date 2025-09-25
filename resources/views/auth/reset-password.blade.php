@@ -1,37 +1,104 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('password.update') }}">
-        @csrf
+@extends('layouts.front')
 
-        <!-- Password Reset Token -->
-        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+@section('front')
+<div class="content-wrapper">
+  <!-- Header -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <h1>Reset Password</h1>
+      <p class="text-muted">Silakan masukkan email dan password baru Anda.</p>
+    </div>
+  </section>
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+  <!-- Content -->
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-lg-6">
+          <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+              {{-- Error global --}}
+              @if ($errors->any())
+                <div class="alert alert-danger">
+                  <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                      <li>{{ $error }}</li>
+                    @endforeach
+                  </ul>
+                </div>
+              @endif
+
+              {{-- Form Reset Password --}}
+              <form method="POST" action="{{ route('password.update') }}">
+                @csrf
+
+                <!-- Token -->
+                <input type="hidden" name="token" value="{{ $request->route('token') }}">
+
+                <!-- Email -->
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    class="form-control @error('email') is-invalid @enderror"
+                    value="{{ old('email', $request->email) }}"
+                    required
+                    autofocus
+                  >
+                  @error('email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
+
+                <!-- Password -->
+                <div class="form-group mt-3">
+                  <label for="password">Password Baru</label>
+                  <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    class="form-control @error('password') is-invalid @enderror"
+                    required
+                  >
+                  @error('password')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group mt-3">
+                  <label for="password_confirmation">Konfirmasi Password</label>
+                  <input
+                    id="password_confirmation"
+                    type="password"
+                    name="password_confirmation"
+                    class="form-control @error('password_confirmation') is-invalid @enderror"
+                    required
+                  >
+                  @error('password_confirmation')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
+
+                <!-- Submit -->
+                <div class="d-flex justify-content-end mt-4">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-lock mr-1"></i> Reset Password
+                  </button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+          <div class="text-center text-muted mt-3" style="font-size:.9rem">
+            Ingat password Anda? <a href="{{ route('login') }}">Kembali ke Login</a>
+          </div>
         </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+      </div>
+    </div>
+  </section>
+</div>
+@endsection
