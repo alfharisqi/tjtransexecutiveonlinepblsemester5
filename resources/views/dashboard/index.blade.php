@@ -190,6 +190,222 @@
                     @endcan
                     <!-- ./col -->
                 </div>
+
+                <!-- =================== TATA CARA MEMBELI TIKET =================== -->
+                <div class="row">
+                <div class="col-12">
+                    <div class="card card-outline card-primary" id="howto">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">
+                        <i class="fas fa-ticket-alt"></i> Tata Cara Membeli Tiket
+                        </h3>
+                        <div class="card-tools">
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row">
+
+                        <!-- Step 1 -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="border rounded p-3 h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge badge-primary mr-2" style="min-width:32px">1</span>
+                                <strong>Buka menu <em><a href="/orders/create">Buat Pesanan</a></em> di sidebar</strong>
+                            </div>
+                            <p class="mb-3 text-muted">Klik menu <b>Buat Pesanan</b> pada sidebar kiri untuk mulai pemesanan.</p>
+                            <!-- <a href="#" data-toggle="modal" data-target="#howtoStep1Modal">
+                                <img src="{{ asset('images/howto/step1_buat_pesanan.png') }}" alt="Buat Pesanan"
+                                    class="img-fluid rounded shadow-sm">
+                            </a> -->
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="border rounded p-3 h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge badge-primary mr-2" style="min-width:32px">2</span>
+                                <strong>Pilih asal, tujuan, tanggal & jumlah penumpang</strong>
+                            </div>
+                            <p class="mb-3 text-muted">Isi form pencarian untuk menampilkan jadwal yang tersedia.</p>
+                            <!-- <a href="#" data-toggle="modal" data-target="#howtoStep2Modal">
+                                <img src="{{ asset('images/howto/step2_filter.jpg') }}" alt="Pilih rute & tanggal"
+                                    class="img-fluid rounded shadow-sm">
+                            </a> -->
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="border rounded p-3 h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge badge-primary mr-2" style="min-width:32px">3</span>
+                                <strong>Pilih tiket & kursi yang tersedia</strong>
+                            </div>
+                            <p class="mb-3 text-muted">Pilih armada/jadwal lalu klik kursi yang masih kosong (kursi terpesan tidak bisa dipilih).</p>
+                            <!-- <a href="#" data-toggle="modal" data-target="#howtoStep3Modal">
+                                <img src="{{ asset('images/howto/step3_kursi.jpg') }}" alt="Pilih kursi"
+                                    class="img-fluid rounded shadow-sm">
+                            </a> -->
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="border rounded p-3 h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge badge-primary mr-2" style="min-width:32px">4</span>
+                                <strong>Isi data penumpang & titik jemput</strong>
+                            </div>
+                            <p class="mb-3 text-muted">Lengkapi identitas penumpang dan lokasi penjemputan agar sopir mudah menemukan Anda.</p>
+                            <!-- <a href="#" data-toggle="modal" data-target="#howtoStep4Modal">
+                                <img src="{{ asset('images/howto/step4_data_penumpang.jpg') }}" alt="Data penumpang"
+                                    class="img-fluid rounded shadow-sm">
+                            </a> -->
+                            </div>
+                        </div>
+
+                        <!-- Step 5 -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="border rounded p-3 h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge badge-primary mr-2" style="min-width:32px">5</span>
+                                <strong>Pilih metode pembayaran</strong>
+                            </div>
+                            <p class="mb-3 text-muted">Pilih metode pembayaran yang tersedia (transfer/virtual account/dll).</p>
+                            <!-- <a href="#" data-toggle="modal" data-target="#howtoStep5Modal">
+                                <img src="{{ asset('images/howto/step5_pembayaran.jpg') }}" alt="Pilih pembayaran"
+                                    class="img-fluid rounded shadow-sm">
+                            </a> -->
+                            </div>
+                        </div>
+
+                        <!-- Step 6 -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="border rounded p-3 h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge badge-primary mr-2" style="min-width:32px">6</span>
+                                <strong>Unggah bukti & tunggu konfirmasi</strong>
+                            </div>
+                            <p class="mb-3 text-muted">Unggah bukti pembayaran. Notifikasi konfirmasi akan dikirim melalui email.</p>
+                            <!-- <a href="#" data-toggle="modal" data-target="#howtoStep6Modal">
+                                <img src="{{ asset('images/howto/step6_upload_bukti.jpg') }}" alt="Unggah pembayaran"
+                                    class="img-fluid rounded shadow-sm">
+                            </a> -->
+                            </div>
+                        </div>
+
+                        </div>
+
+                        <div class="alert alert-info mt-2 mb-0">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Tips: Siapkan email aktif & nomor yang bisa dihubungi. Cek folder <b>Spam/Promotions</b> jika tidak menerima email.
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                </div>
+                <!-- =================== /TATA CARA MEMBELI TIKET =================== -->
+
+                <!-- =================== MODALS (PREVIEW FOTO SETIAP LANGKAH) =================== -->
+                <!-- Step 1 Modal -->
+                <div class="modal fade" id="howtoStep1Modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                    <div class="modal-header py-2">
+                        <h5 class="modal-title">Langkah 1 — Buka menu Buat Pesanan</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+                    </div>
+                    <!-- <div class="modal-body p-2">
+                        <img src="{{ asset('images/howto/step1_buat_pesanan.jpg') }}" class="img-fluid rounded w-100" alt="">
+                    </div> -->
+                    </div>
+                </div>
+                </div>
+
+                <!-- Step 2 Modal -->
+                <div class="modal fade" id="howtoStep2Modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                    <div class="modal-header py-2">
+                        <h5 class="modal-title">Langkah 2 — Pilih asal, tujuan, tanggal & jumlah penumpang</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <!-- <div class="modal-body p-2">
+                        <img src="{{ asset('images/howto/step2_filter.jpg') }}" class="img-fluid rounded w-100" alt="">
+                    </div> -->
+                    </div>
+                </div>
+                </div>
+
+                <!-- Step 3 Modal -->
+                <div class="modal fade" id="howtoStep3Modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                    <div class="modal-header py-2">
+                        <h5 class="modal-title">Langkah 3 — Pilih tiket & kursi</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <!-- <div class="modal-body p-2">
+                        <img src="{{ asset('images/howto/step3_kursi.jpg') }}" class="img-fluid rounded w-100" alt="">
+                    </div> -->
+                    </div>
+                </div>
+                </div>
+
+                <!-- Step 4 Modal -->
+                <div class="modal fade" id="howtoStep4Modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                    <div class="modal-header py-2">
+                        <h5 class="modal-title">Langkah 4 — Isi data penumpang & titik jemput</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <!-- <div class="modal-body p-2">
+                        <img src="{{ asset('images/howto/step4_data_penumpang.jpg') }}" class="img-fluid rounded w-100" alt="">
+                    </div> -->
+                    </div>
+                </div>
+                </div>
+
+                <!-- Step 5 Modal -->
+                <div class="modal fade" id="howtoStep5Modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                    <div class="modal-header py-2">
+                        <h5 class="modal-title">Langkah 5 — Pilih metode pembayaran</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <!-- <div class="modal-body p-2">
+                        <img src="{{ asset('images/howto/step5_pembayaran.jpg') }}" class="img-fluid rounded w-100" alt="">
+                    </div> -->
+                    </div>
+                </div>
+                </div>
+
+                <!-- Step 6 Modal -->
+                <div class="modal fade" id="howtoStep6Modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                    <div class="modal-header py-2">
+                        <h5 class="modal-title">Langkah 6 — Unggah bukti & tunggu konfirmasi</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <!-- <div class="modal-body p-2">
+                        <img src="{{ asset('images/howto/step6_upload_bukti.jpg') }}" class="img-fluid rounded w-100" alt="">
+                    </div> -->
+                    </div>
+                </div>
+                </div>
+                <!-- =================== /MODALS =================== -->
+
+                <!-- Sedikit styling opsional -->
+                <style>
+                #howto .badge { font-size: 0.9rem; }
+                #howto img { cursor: zoom-in; }
+                </style>
+
                 <!-- /.row -->
                 <!-- Main row -->
                 <div class="row">
