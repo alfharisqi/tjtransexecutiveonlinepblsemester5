@@ -8,16 +8,15 @@ use Carbon\Carbon;
 
 class DriverDashboardController extends Controller
 {
-    /**
-     * Tampilkan Dashboard Driver
-     */
     public function index(Request $request)
     {
         $driver = auth('driver')->user();
 
         $driverTickets = Ticket::with([
             'price','train','track',
-            'orders.passengers','orders.user'
+            'orders.passengers',
+            'orders.user',
+            'orders.statusPerjalanan',   // <-- TAMBAHKAN INI
         ])
         ->where('driver_id', $driver->id)
         ->orderBy('departure_at','asc')

@@ -40,14 +40,14 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        // izinkan admin, atau pemilik order
-        if (!Gate::allows('isAdmin') && $order->user_id !== Auth::id()) {
+        // Normalisasi tipe atau pakai perbandingan non-strict
+        if (Gate::denies('isAdmin') && (int) $order->user_id !== (int) Auth::id()) {
             abort(403);
         }
-
-        // muat relasi yang dibutuhkan
-        $order->loadMissing(['user','ticket.train','ticket.track','passengers','transaction']);
-
+    
+        $order->loadMissing(['user','ticket.train','ticket.track','passengers','transaction.method']);
+    
+        // perbaiki nama view: 'orders' (jamak)
         return view('dashboard.order.show', compact('order'));
     }
 
@@ -118,25 +118,46 @@ class OrderController extends Controller
         // 3) Hitung sisa kursi khusus utk tanggal yang diminta
         $result = [];
         foreach ($ticketsAll as $t) {
-            $capacity = $this->capacityForTrain($t->train);
-            $occupied = $this->listOccupiedSeatsNormalized($t->id, $goDate);
-            $remaining = max(0, $capacity - count($occupied));
+    $capacity  = $this->capacityForTrain($t->train);
+    $occupied  = $this->listOccupiedSeatsNormalized($t->id, $goDate);
+    $remaining = max(0, $capacity - count($occupied));
 
-            if ($remaining > 0) {
-                $result[] = [
-                    'ticket_id' => $t->id,
-                    'label'     => sprintf(
-                        '%s → %s | %s | %s s.d %s | Rp %s',
-                        $t->track->from_route, $t->track->to_route, $t->train->class,
-                        optional($t->departure_at)->timezone('Asia/Jakarta')->format('d M Y H:i'),
-                        optional($t->arrival_at)->timezone('Asia/Jakarta')->format('d M Y H:i'),
-                        $t->price ? number_format($t->price->price,0,',','.') : '-'
-                    ),
-                    'remaining' => $remaining,
-                    'price'     => $t->price->price ?? null,
-                ];
-            }
-        }
+    if ($remaining > 0) {
+        // pastikan timezone lokal (opsional)
+        $dep = $t->departure_at ? $t->departure_at->copy()->timezone('Asia/Jakarta') : null;
+        $arr = $t->arrival_at   ? $t->arrival_at->copy()->timezone('Asia/Jakarta')   : null;
+
+        $result[] = [
+            // id agar kompatibel dengan FE yang membaca t.id atau t.ticket_id
+            'id'         => $t->id,
+            'ticket_id'  => $t->id,
+
+            // waktu (kunci utama yg dibaca FE)
+            'departure_at' => $dep?->toIso8601String(), // contoh: 2025-11-10T08:00:00+07:00
+            'arrival_at'   => $arr?->toIso8601String(),
+
+            // fallback tambahan kalau FE lama masih baca ini
+            'depart_time'  => $dep?->format('H:i'),
+            'arrive_time'  => $arr?->format('H:i'),
+
+            // info lain
+            'from'      => $t->track?->from_route,
+            'to'        => $t->track?->to_route,
+            'remaining' => $remaining,
+            'price'     => $t->price->price ?? null,
+            'price_label' => $t->price? number_format($t->price->price,0,',','.') : null,
+
+            // optional: untuk debug/inspeksi, tetap boleh kirim label lama
+            'label'     => sprintf(
+                '%s → %s | %s | %s s.d %s | Rp %s',
+                $t->track->from_route, $t->track->to_route, $t->train->class,
+                $dep?->format('d M Y H:i'), $arr?->format('d M Y H:i'),
+                $t->price ? number_format($t->price->price,0,',','.') : '-'
+            ),
+        ];
+    }
+}
+
 
         if (empty($result)) {
             // Ada tiket di tanggal itu, tapi penuh

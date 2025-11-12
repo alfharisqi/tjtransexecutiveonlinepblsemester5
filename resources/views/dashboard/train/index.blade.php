@@ -103,11 +103,11 @@
 
                                                       <div class="d-flex flex-wrap align-items-center">
                                                         <div class="form-inline mr-2 mb-2">
-                                                          <label class="mr-2">Rows</label>
+                                                          <label class="mr-2">Baris</label>
                                                           <input type="number" id="slbR" class="form-control form-control-sm" value="{{ old('rows', 10) }}" min="1" style="width:90px">
                                                         </div>
                                                         <div class="form-inline mr-2 mb-2">
-                                                          <label class="mr-2">Cols</label>
+                                                          <label class="mr-2">Kolom</label>
                                                           <input type="number" id="slbC" class="form-control form-control-sm" value="{{ old('cols', 4) }}" min="1" style="width:90px">
                                                         </div>
 
@@ -163,8 +163,8 @@
                                         <th>Foto Armada</th>
                                         <th>Foto Kursi</th>
                                         <th>Total</th>
-                                        <th>Rows</th>
-                                        <th>Cols</th>
+                                        <th>Kolom</th>
+                                        <th>Baris</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>

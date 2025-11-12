@@ -10,27 +10,25 @@
                 <p class="text-muted mb-0">
                     Selamat datang, {{ auth('driver')->user()->nama_driver }} 🎉
                 </p>
-                {{-- Logout driver (POST) --}}
-      @auth('driver')
-        <form id="driver-logout-form" action="{{ route('driver.logout') }}" method="POST" class="d-none">
-          @csrf
-        </form>
 
-        <a href="#" class="btn btn-outline-danger mb-2"
-           onclick="event.preventDefault(); document.getElementById('driver-logout-form').submit();">
-          Logout
-        </a>
-      @endauth
+                {{-- Logout driver (POST) --}}
+                @auth('driver')
+                    <form id="driver-logout-form" action="{{ route('driver.logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                    <a href="#" class="btn btn-outline-danger mb-2"
+                       onclick="event.preventDefault(); document.getElementById('driver-logout-form').submit();">
+                        Logout
+                    </a>
+                @endauth
             </div>
         </section>
 
         <section class="content">
             <div class="container-fluid">
+
                 {{-- ========== 1) Identitas Driver ========== --}}
-                @php
-                    /** @var \App\Models\Driver $driver */
-                    $driver = auth('driver')->user();
-                @endphp
+                @php $driver = auth('driver')->user(); @endphp
 
                 <div class="card card-outline card-success">
                     <div class="card-header">
@@ -79,14 +77,13 @@
                                         </tbody>
                                     </table>
                                 </div>
-                            </div> 
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- ========== 2) Jadwal Driver (Upcoming) ========== --}}
                 @php
-                    /** @var \Illuminate\Support\Collection $driverTickets */
                     $driverTickets = $driverTickets ?? collect();
                     $nowWIB = \Carbon\Carbon::now('Asia/Jakarta');
                     $upcoming = $driverTickets->filter(function($t) use ($nowWIB) {
@@ -94,9 +91,7 @@
                     });
                 @endphp
 
-
-
-                {{-- ========== 3) Daftar Tiket Driver + Lihat Penumpang & Titik Jemput ========== --}}
+                {{-- ========== 3) Daftar Tiket Driver ========== --}}
                 <div class="card card-outline card-warning">
                     <div class="card-header">
                         <h3 class="card-title mb-0">Tiket Saya</h3>
@@ -138,28 +133,11 @@
                                                     <small class="text-muted">{{ $t->train->class ?? '-' }}</small>
                                                 </td>
                                                 <td>{{ ($t->track->from_route ?? '-') . ' → ' . ($t->track->to_route ?? '-') }}</td>
+                                                <td>{{ $t->departure_at?->timezone('Asia/Jakarta')->format('d M Y H:i') ?? '-' }}</td>
+                                                <td>{{ $t->arrival_at?->timezone('Asia/Jakarta')->format('d M Y H:i') ?? '-' }}</td>
+                                                <td>{{ optional($t->price)->price ? 'Rp '.number_format($t->price->price,0,',','.') : '-' }}</td>
                                                 <td>
-                                                    @if($t->departure_at)
-                                                        {{ $t->departure_at->timezone('Asia/Jakarta')->format('d M Y H:i') }}
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($t->arrival_at)
-                                                        {{ $t->arrival_at->timezone('Asia/Jakarta')->format('d M Y H:i') }}
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @php $p = optional($t->price)->price; @endphp
-                                                    {{ $p !== null ? 'Rp '.number_format($p,0,',','.') : '-' }}
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-primary"
-                                                            data-toggle="modal"
-                                                            data-target="#{{ $modalId }}">
+                                                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#{{ $modalId }}">
                                                         Lihat ({{ $totalPassengers }})
                                                     </button>
                                                 </td>
@@ -169,7 +147,7 @@
                                 </table>
                             </div>
 
-                            {{-- ===== Render SEMUA MODAL di bawah tabel (bukan di dalam tbody) ===== --}}
+                            {{-- ===== MODAL PENUMPANG ===== --}}
                             @foreach ($driverTickets as $t)
                                 @php
                                     $modalId = 'penumpangModal_'.$t->id;
@@ -194,33 +172,110 @@
                                                 @else
                                                     <div class="table-responsive">
                                                         <table class="table table-bordered">
-                                                                <thead>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>#</th>
+                                                                    <th>ID Order</th>
+                                                                    <th>Pemesan</th>
+                                                                    <th>Penumpang</th>
+                                                                    <th>No. Seat</th>
+                                                                    <th>Titik Jemput</th>
+                                                                    <th>No. WhatsApp</th>
+                                                                    <th>Status Perjalanan</th>
+                                                                    <th>Aksi</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ($orders as $k => $o)
+                                                                    @php
+                                                                        $pemesan = optional($o->user)->name ?? optional($o->user)->username ?? '—';
+                                                                        $pickup  = $o->pickup_point ?? $o->pickup_location ?? $o->alamat_lengkap ?? '—';
+                                                                        $passengerList = $o->passengers?->pluck('name')->filter()->implode(', ') ?? '—';
+                                                                        $wa = $o->nowhatsapp ?? $o->no_whatsapp ?? $o->phone ?? '—';
+                                                                        // seat
+                                                                        $seatList = '—';
+                                                                        if (!empty($o->selected_seats)) {
+                                                                            $decoded = json_decode($o->selected_seats, true);
+                                                                            $seatList = is_array($decoded)
+                                                                                ? collect($decoded)->implode(', ')
+                                                                                : collect(explode(',', $o->selected_seats))->map(fn($s) => trim($s))->filter()->implode(', ');
+                                                                        }
+                                                                        // status
+                                                                        $status = $o->status_perjalanan ?? 'belum_dijemput';
+                                                                        $badgeClass = match($status) {
+                                                                            'belum_dijemput' => 'badge-secondary',
+                                                                            'perjalanan' => 'badge-info',
+                                                                            'tiba_ditujuan' => 'badge-success',
+                                                                            default => 'badge-light',
+                                                                        };
+                                                                    @endphp
+
                                                                     <tr>
-                                                                        <th>#</th><th>ID Order</th>
-                                                                        <th>Pemesan</th><th>Penumpang</th>
-                                                                        <th>Titik Jemput</th>
-                                                                        <th>No. WhatsApp Pemesan</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach ($orders as $k => $o)
-                                                                        @php
-                                                                            $pemesan = optional($o->user)->name ?? optional($o->user)->username ?? '—';
-                                                                            $pickup = $o->pickup_point ?? $o->pickup_location ?? $o->alamat_lengkap ?? '—';
-                                                                            $passengerList = $o->passengers?->pluck('name')->filter()->implode(', ') ?? '—';
-                                                                            $wa = $o->nowhatsapp ?? $o->no_whatsapp ?? $o->phone ?? '—';
+                                                                        <td>{{ $k+1 }}</td>
+                                                                        <td>{{ $o->id }}</td>
+                                                                        <td>{{ $pemesan }}</td>
+                                                                        <td>{{ $passengerList }}</td>
+                                                                        <td>{{ $seatList }}</td>
+                                                                        <td>{{ $pickup }}</td>
+                                                                        <td>{{ $wa }}</td>
+                                                                        <td>
+                                                                            @php
+                                                                            $statusRow  = $o->statusPerjalanan; // dari tabel status_perjalanan
+                                                                            $status     = $statusRow?->status ?? 'belum_dijemput';
+                                                                            $badgeClass = $statusRow?->badge ?? match($status) {
+                                                                                'belum_dijemput' => 'badge-secondary',
+                                                                                'perjalanan'     => 'badge-info',
+                                                                                'tiba_ditujuan'  => 'badge-success',
+                                                                                default          => 'badge-light',
+                                                                            };
+                                                                            $label = $statusRow?->label ?? ucfirst(str_replace('_',' ', $status));
                                                                         @endphp
-                                                                        <tr>
-                                                                            <td>{{ $k+1 }}</td>
-                                                                            <td>{{ $o->id }}</td>
-                                                                            <td>{{ $pemesan }}</td>
-                                                                            <td>{{ $passengerList }}</td>
-                                                                            <td>{{ $pickup }}</td>
-                                                                            <td>{{ $wa }}</td>
-                                                                        </tr>
-                                                                    @endforeach
-                                                                </tbody>
-                                                            </table>
+
+                                                                        <span class="badge {{ $badgeClass }}">{{ $label }}</span>
+
+                                                                        </td>
+
+                                                                        <td>
+                                                                            <div class="btn-group btn-group-sm" role="group" aria-label="Status perjalanan">
+                                                                                {{-- Belum Dijemput --}}
+                                                                                <form action="{{ route('driver.status-perjalanan.update', $o->id) }}" method="POST" class="mr-1">
+                                                                                    @csrf
+                                                                                    @method('PATCH')
+                                                                                    <input type="hidden" name="next_status" value="belum_dijemput">
+                                                                                    <button type="submit"
+                                                                                        class="btn {{ $status==='belum_dijemput' ? 'btn-secondary active' : 'btn-outline-secondary' }}">
+                                                                                        Belum dijemput
+                                                                                    </button>
+                                                                                </form>
+
+                                                                                {{-- Perjalanan --}}
+                                                                                <form action="{{ route('driver.status-perjalanan.update', $o->id) }}" method="POST" class="mr-1">
+                                                                                    @csrf
+                                                                                    @method('PATCH')
+                                                                                    <input type="hidden" name="next_status" value="perjalanan">
+                                                                                    <button type="submit"
+                                                                                        class="btn {{ $status==='perjalanan' ? 'btn-info active' : 'btn-outline-info' }}">
+                                                                                        Perjalanan
+                                                                                    </button>
+                                                                                </form>
+
+                                                                                {{-- Tiba di Tujuan --}}
+                                                                                <form action="{{ route('driver.status-perjalanan.update', $o->id) }}" method="POST">
+                                                                                    @csrf
+                                                                                    @method('PATCH')
+                                                                                    <input type="hidden" name="next_status" value="tiba_ditujuan">
+                                                                                    <button type="submit"
+                                                                                        class="btn {{ $status==='tiba_ditujuan' ? 'btn-success active' : 'btn-outline-success' }}">
+                                                                                        Tiba di tujuan
+                                                                                    </button>
+                                                                                </form>
+                                                                            </div>
+                                                                        </td>
+
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
                                                     </div>
                                                 @endif
                                             </div>
@@ -232,7 +287,7 @@
                                     </div>
                                 </div>
                             @endforeach
-                            {{-- ===== /SEMUA MODAL ===== --}}
+                            {{-- ===== /MODAL ===== --}}
                         @endif
                     </div>
                 </div>

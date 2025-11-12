@@ -55,11 +55,18 @@
                         <div class="card card-primary @can('isAdmin') card-danger @endcan card-outline">
                             <div class="card-header box-profile d-flex flex-column align-items-center">
                                 <div class="text-center">
-                                    @if($user->image && file_exists(public_path($user->image)))
-                                        <img class="profile-user-img img-fluid img-circle" src="{{ asset($user->image) }}" alt="User Image">
-                                    @else
-                                        <img class="profile-user-img img-fluid img-circle" src="{{ asset('images/default.png') }}" alt="Default profile picture">
-                                    @endif
+                                    @php
+                                        use Illuminate\Support\Facades\Storage;
+                                        // Normalisasi path dari DB (contoh: "profiles/xxx.jpg" atau "public/profiles/xxx.jpg")
+                                        $img = trim($user->image ?? '', '/');
+                                        $img = preg_replace('#^(public/|storage/)#', '', $img);
+                                        $exists = $img && Storage::disk('public')->exists($img);
+                                        $profileUrl = $exists ? asset('storage/'.$img) : asset('images/default.png');
+                                    @endphp
+
+                                    <img class="profile-user-img img-fluid img-circle"
+                                         src="{{ $profileUrl }}"
+                                         alt="User Image">
                                 </div>
 
                                 <h3 class="mt-3 profile-username text-center">{{ $user->name }}</h3>
@@ -161,13 +168,14 @@
                                                 <div class="form-group row">
                                                     <label for="image" class="col-sm-2 col-form-label">Foto Profil:</label>
                                                     <div class="col-sm-10">
-                                                        @if ($user->image)
+                                                        @if($exists)
                                                             <div class="d-flex align-items-center">
-                                                                <img style="max-width: 100px" src="{{ asset($user->image) }}" alt="User Image">
+                                                                <img style="max-width: 100px; border-radius:6px; border:1px solid #ddd"
+                                                                     src="{{ $profileUrl }}" alt="User Image">
                                                                 <button type="button" id="deleteProfileImage" class="btn btn-danger ml-2">Hapus Gambar</button>
                                                             </div>
                                                         @endif
-                                                        <input type="file" class="form-control mt-2" name="image" value="">
+                                                        <input type="file" class="form-control mt-2" name="image" id="image" accept="image/*">
                                                     </div>
                                                 </div>
                                             </div>
@@ -216,18 +224,21 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.getElementById('deleteProfileImage').addEventListener('click', function() {
-        Swal.fire({
-            title: "Anda yakin ingin menghapus foto profil?",
-            showCancelButton: true,
-            confirmButtonText: "Ya, hapus",
-            cancelButtonText: "Batal"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('deleteProfileImageForm').submit();
-            }
+    const delBtn = document.getElementById('deleteProfileImage');
+    if (delBtn) {
+        delBtn.addEventListener('click', function() {
+            Swal.fire({
+                title: "Anda yakin ingin menghapus foto profil?",
+                showCancelButton: true,
+                confirmButtonText: "Ya, hapus",
+                cancelButtonText: "Batal"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('deleteProfileImageForm').submit();
+                }
+            });
         });
-    });
+    }
 </script>
 
 <script>

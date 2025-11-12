@@ -81,9 +81,11 @@ class TransactionController extends Controller
         }
 
         // === USER: upload bukti pembayaran ===
-        if (optional($transaction->order)->user_id !== Auth::id()) {
+        $ownerId = (int) optional($transaction->order)->user_id;
+        if ($ownerId !== (int) Auth::id()) {
             abort(403);
         }
+
 
         // Validasi & simpan bukti pembayaran
         $validated = $request->validate([
@@ -92,7 +94,8 @@ class TransactionController extends Controller
 
         // Simpan ke storage/app/public/public_payment/xxxx.jpg
         // Pastikan sudah menjalankan: php artisan storage:link
-        $path = $request->file('image')->store('public_payment', 'public'); // return: public_payment/xxxx.jpg
+        $path = $request->file('image')->store('uploads/payments', 'public');
+
 
         $transaction->update([
             'image' => $path, // akses di Blade: asset('storage/'.$transaction->image)

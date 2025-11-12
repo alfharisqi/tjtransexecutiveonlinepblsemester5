@@ -114,7 +114,7 @@
                                                         <input type="file" class="form-control" name="foto">
                                                     </div>
                                                     <div class="form-group">
-                                                        <label>Password (opsional)</label>
+                                                        <label>Password</label>
                                                         <input type="text" class="form-control" name="password" placeholder="Kosongkan jika tidak diubah">
                                                     </div>
                                                 </div>
@@ -147,7 +147,7 @@
                                 <div class="form-group"><label>Nama</label><input name="name" class="form-control" required></div>
                                 <div class="form-group"><label>Username</label><input name="username" class="form-control" required></div>
                                 <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" required></div>
-                                <div class="form-group"><label>Password (opsional)</label><input type="text" name="password" class="form-control" placeholder="Jika kosong, dibuat otomatis"></div>
+                                <div class="form-group"><label>Password</label><input type="text" name="password" class="form-control" placeholder="Jika kosong, dibuat otomatis"></div>
                                 <div class="form-group"><label>No. Telepon</label><input name="phone_number" class="form-control"></div>
                                 <div class="form-group"><label>No. SIM</label><input name="sim" class="form-control"></div>
                                 <div class="form-group"><label>Foto</label><input type="file" name="foto" class="form-control"></div>

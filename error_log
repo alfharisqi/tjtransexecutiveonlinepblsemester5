@@ -1,0 +1,1 @@
+[28-Sep-2025 15:38:56 Asia/Jakarta] PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.1.0". You are running 7.4.33. in /home/traq7362/tjtransexecutiveonlinepblsemester5/vendor/composer/platform_check.php on line 24

@@ -1,145 +1,157 @@
-<div class="sidebar">
-    <!-- Sidebar user panel (optional) -->
-    <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
-        <div class="image">
-            <a href="/users/{{ Auth::id() }}" class="d-block" style="{{ Request::is('users*') ? 'color: white' : '' }}; word-wrap: break-word;">
-                @if (Auth::check() && Auth::user()->image && file_exists(public_path(Auth::user()->image)))
-                    <img src="{{ asset(Auth::user()->image) }}" class="img-circle elevation-2" style="width: 50px; height: 50px;" alt="{{ Auth::user()->name }}">
-                @else
-                    <img src="{{ asset('images/default.png') }}" class="img-circle elevation-2" style="width: 50px; height: 50px;" alt="{{ Auth::user()->name }}">
-                @endif
-            </a>
+@php
+    function active($pattern) { return request()->is($pattern) ? 'active' : ''; }
+
+    $user = Auth::user();
+    $hasImage = $user && $user->image && file_exists(public_path($user->image));
+    $avatar = $hasImage ? asset($user->image) : asset('images/default.png');
+@endphp
+
+<style>
+/* Warna elegan biru gelap tanpa ganggu efek bawaan AdminLTE */
+.main-sidebar.sidebar-dark-primary {
+    background: linear-gradient(180deg, #0e2f57 0%, #103e74 60%, #0b2847 100%) !important;
+}
+.main-sidebar .brand-link {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e6f0fa !important;
+}
+.main-sidebar .brand-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.nav-sidebar > .nav-item > .nav-link.active {
+    background-color: #1565c0 !important;
+    color: #fff !important;
+}
+.nav-sidebar > .nav-item > .nav-link:hover {
+    background-color: #1e88e5 !important;
+    color: #fff !important;
+}
+.nav-header {
+    color: #9fbbe7 !important;
+}
+.user-panel .info a {
+    color: #fff !important;
+    font-weight: 600;
+}
+</style>
+
+<aside class="main-sidebar sidebar-dark-primary elevation-2">
+    <a href="{{ url('/dashboard') }}" class="brand-link">
+        <img src="{{ asset('favicon.ico') }}" alt="Logo" class="brand-image img-circle elevation-3" style="opacity:.9">
+        <span class="brand-text font-weight-light">TJ Trans Executive</span>
+    </a>
+
+    <div class="sidebar">
+        <div class="user-panel d-flex align-items-center mt-3 pb-3 mb-3">
+            <div class="image me-2">
+                <a href="{{ url('/users/' . Auth::id()) }}" class="d-block">
+                    <img src="{{ $avatar }}" class="img-circle elevation-2" width="50" height="50" alt="{{ $user->name }}">
+                </a>
+            </div>
+            <div class="info">
+                <a href="{{ url('/users/' . Auth::id()) }}" class="d-block">{{ $user->name }}</a>
+            </div>
         </div>
-        <div class="info">
-            <a href="/users/{{ Auth::id() }}" class="d-block"
-                style="{{ Request::is('users*') ? 'color: white' : '' }}; word-wrap: break-word;">{{ Auth::user()->name }}</a>
-        </div>
+
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+
+                <li class="nav-item">
+                    <a href="{{ url('/') }}" class="nav-link {{ active('/') }}">
+                        <i class="nav-icon fas fa-home"></i>
+                        <p>Halaman Utama</p>
+                    </a>
+                </li>
+
+                <li class="nav-header">MENUS</li>
+
+                <li class="nav-item">
+                    <a href="{{ url('/dashboard') }}" class="nav-link {{ active('dashboard*') }}">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ url('/tickets') }}" class="nav-link {{ active('tickets*') }}">
+                        <i class="nav-icon fas fa-money-bill-wave"></i>
+                        <p>Daftar Tiket</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ url('/orders/create') }}" class="nav-link {{ active('orders/create') }}">
+                        <i class="nav-icon fas fa-edit"></i>
+                        <p>Buat Pesanan</p>
+                    </a>
+                </li>
+
+                <li class="nav-item {{ request()->is('orders') || request()->is('transactions') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->is('orders') || request()->is('transactions') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-list-ul"></i>
+                        <p>Riwayat <i class="right fas fa-angle-left"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('/orders') }}" class="nav-link {{ active('orders') }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Pesanan</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url('/transactions') }}" class="nav-link {{ active('transactions') }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Transaksi</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                @can('isAdmin')
+                    <li class="nav-item">
+                        <a href="{{ url('/users') }}" class="nav-link {{ active('users*') }}">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>Users</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ url('/trains') }}" class="nav-link {{ active('trains*') }}">
+                            <i class="nav-icon fas fa-bus"></i>
+                            <p>Armada</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ url('/tracks') }}" class="nav-link {{ active('tracks*') }}">
+                            <i class="nav-icon fas fa-route"></i>
+                            <p>Rute Berangkat</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ url('/methods') }}" class="nav-link {{ active('methods*') }}">
+                            <i class="nav-icon fas fa-credit-card"></i>
+                            <p>Metode Pembayaran</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ url('/finance') }}" class="nav-link {{ active('finance*') }}">
+                            <i class="nav-icon fas fa-coins"></i>
+                            <p>Keuangan</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('drivers.index') }}" class="nav-link {{ active('drivers*') }}">
+                            <i class="nav-icon fas fa-id-badge"></i>
+                            <p>Driver</p>
+                        </a>
+                    </li>
+                @endcan
+
+            </ul>
+        </nav>
     </div>
-
-    <!-- Sidebar Menu -->
-    <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-            <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-            <li class="nav-item menu-open">
-                <?php
-                $url = $_SERVER['PHP_SELF'];
-                $url = explode('/', $url);
-                $lastPart = array_pop($url);
-                if ($lastPart == 'index.php') {
-                    echo '<a href="./../" class="nav-link">';
-                } else {
-                    echo '<a href="../../" class="nav-link">';
-                }
-                ?>
-                <i class="nav-icon fas fa-home"></i>
-                <p>
-                    Halaman Utama
-                </p>
-                </a>
-            </li>
-            <li class="nav-header">MENUS</li>
-            <li class="nav-item menu-open">
-                <a href="/dashboard" class="nav-link {{ Request::is('dashboard*') ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-tachometer-alt"></i>
-                    <p>
-                        Dashboard
-                    </p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/tickets" class="nav-link {{ Request::is('tickets*') ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-money-bill-wave"></i>
-                    <p>
-                        Daftar Tiket
-                        <i class="fas fa-angle-left right"></i>
-                    </p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/orders/create" class="nav-link {{ Request::is('orders/create') ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-edit"></i>
-                    <p>
-                        Buat Pesanan
-                        <i class="fas fa-angle-left right"></i>
-                    </p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#"
-                    class="nav-link {{ Request::is('transactions') || Request::is('orders') ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-list-ul"></i>
-                    <p>
-                        Riwayat
-                        <i class="fas fa-angle-left right"></i>
-                    </p>
-                </a>
-                <ul class="nav nav-treeview">
-                    <li class="nav-item">
-                        <a href="/orders" class="nav-link">
-                            <i class="far fa-circle nav-icon"
-                                style="color	: {{ Request::is('orders') ? 'rgb(0, 141, 193)' : '' }}"></i>
-                            <p>Pesanan</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/transactions" class="nav-link">
-                            <i class="far fa-circle nav-icon"
-                                style="color	: {{ Request::is('transactions') ? 'rgb(0, 141, 193)' : '' }}"></i>
-                            <p>Transaksi</p>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            @can('isAdmin')
-                <li class="nav-item">
-                    <a href="/users" class="nav-link {{ Request::is('users*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-users"></i>
-                        <p>
-                            Users
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/trains" class="nav-link {{ Request::is('trains') ? 'active' : '' }}">
-                        📜
-                        <p>
-                            Armada
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/tracks" class="nav-link {{ Request::is('tracks') ? 'active' : '' }}">
-                        📚
-                        <p>
-                            Rute Berangkat
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/methods" class="nav-link {{ Request::is('methods') ? 'active' : '' }}">
-                        💳
-                        <p>
-                            Metode Pembayaran
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('drivers.index') }}" class="nav-link {{ Request::is('drivers*') ? 'active' : '' }}">
-                        🧑‍✈️
-                        <p>
-                            Driver
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                </li>
-
-            @endcan
-        </ul>
-    </nav>
-    <!-- /.sidebar-menu -->
-</div>
+</aside>

@@ -23,4 +23,13 @@ class Order extends Model
     public function complaints()  { return $this->hasMany(Complaint::class); }
     public function seats()       { return $this->hasMany(\App\Models\OrderSeat::class); }
     public function transactions(){ return $this->hasMany(\App\Models\Transaction::class); } // kalau nggak dipakai, boleh dihapus
+
+    public function statusPerjalanan()   // 1 baris per order
+    {
+        return $this->hasOne(\App\Models\StatusPerjalanan::class, 'order_id');
+    }
+    // app/Models/Order.php
+public function scopePaid($q){ return $q->where('status','paid'); }
+
+
 }

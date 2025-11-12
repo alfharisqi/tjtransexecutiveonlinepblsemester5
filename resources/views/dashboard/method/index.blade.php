@@ -108,14 +108,25 @@
                                             <td>{{ $method->method }}</td>
                                             <td>{{ $method->target_account }}</td>
                                             <td>
-                                                @if($method->foto_method)
-                                                    <img src="{{ asset('storage/'.$method->foto_method) }}"
-                                                         style="max-width:80px; max-height:80px; object-fit:cover"
-                                                         alt="Foto {{ $method->method }}">
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
+  @php
+    $img = trim($method->foto_method ?? '', '/');
+    $img = preg_replace('#^(public/|storage/)#', '', $img);
+
+    // cek apakah file ada di disk public
+    $exists = $img && \Illuminate\Support\Facades\Storage::disk('public')->exists($img);
+  @endphp
+
+  @if($exists)
+    <a href="{{ asset('storage/'.$img) }}" target="_blank" rel="noopener">
+      <img src="{{ asset('storage/'.$img) }}"
+           style="max-width:80px; max-height:80px; object-fit:cover; border-radius:4px; border:1px solid #ddd"
+           alt="Foto {{ $method->method }}">
+    </a>
+  @else
+    <span class="text-muted">-</span>
+  @endif
+</td>
+
                                             <td>
                                                 <a class='btn btn-primary btn-xs mx-1' data-toggle="modal"
                                                     data-target="#modal-ubah-{{ $method->id }}">Ubah</a>

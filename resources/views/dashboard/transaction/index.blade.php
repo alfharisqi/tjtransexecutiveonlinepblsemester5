@@ -78,9 +78,10 @@
                   <tbody>
                     @foreach($transactions as $transaction)
                       @php
-                        $order  = $transaction->order;              // bisa null
-                        $user   = optional($order)->user;           // bisa null
-                        $method = $transaction->method ?? optional($order)->method;
+                        $order   = $transaction->order;                 // bisa null
+                        $user    = optional($order)->user;              // bisa null
+                        $method  = $transaction->method ?? optional($order)->method;
+                        $isOwner = (int) optional($order)->user_id === (int) auth()->id();
                       @endphp
 
                       <tr>
@@ -100,14 +101,25 @@
                         <td>Rp {{ number_format($transaction->total,0,',','.') }}</td>
 
                         <td>
-                          @if($transaction->image)
-                            <img style="width:100px;height:60px;object-fit:cover"
-                                 src="{{ asset('storage/'.$transaction->image) }}"
-                                 alt="{{ optional($order)->order_code ?? 'bukti-pembayaran' }}">
-                          @else
-                            <span class="badge badge-warning">Belum diunggah</span>
-                          @endif
-                        </td>
+  @php
+    $imgPath = trim($transaction->image ?? '', '/');
+    // Normalisasi: buang prefix yang sering bikin URL dobel
+    $imgPath = preg_replace('#^(public/|storage/)#', '', $imgPath);
+    $imgUrl  = $imgPath ? asset('storage/'.$imgPath) : null;
+  @endphp
+
+  @if($imgUrl)
+    <a href="{{ $imgUrl }}" target="_blank" rel="noopener">
+      <img
+        src="{{ $imgUrl }}"
+        alt="{{ optional($order)->order_code ?? 'bukti-pembayaran' }}"
+        style="width:100px;height:60px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">
+    </a>
+  @else
+    <span class="badge badge-warning">Belum diunggah</span>
+  @endif
+</td>
+
 
                         <td>
                           @if($transaction->status)
@@ -118,6 +130,7 @@
                         </td>
 
                         <td>
+                          {{-- ADMIN: tombol update status --}}
                           @can('isAdmin')
                             @if($order)
                               <button class="btn btn-primary btn-xs" type="button"
@@ -127,16 +140,19 @@
                               </button>
                             @endif
                           @else
-                            <button class="btn btn-primary btn-xs" type="button"
-                                    data-toggle="modal"
-                                    data-target="#modal-upload-{{ $transaction->id }}">
-                              Unggah Bukti
-                            </button>
+                            {{-- CUSTOMER: tombol unggah hanya untuk pemilik transaksi --}}
+                            @if($isOwner)
+                              <button class="btn btn-primary btn-xs" type="button"
+                                      data-toggle="modal"
+                                      data-target="#modal-upload-{{ $transaction->id }}">
+                                Unggah Bukti
+                              </button>
+                            @endif
                           @endcan
                         </td>
                       </tr>
 
-                      {{-- Modal ADMIN: Update Status (render hanya jika order ada) --}}
+                      {{-- Modal ADMIN: Update Status (render hanya jika admin & order ada) --}}
                       @can('isAdmin')
                         @if($order)
                           <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"
@@ -227,54 +243,56 @@
                         @endif
                       @endcan
 
-                      {{-- Modal USER: Upload bukti pembayaran --}}
-                      <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"
-                           id="modal-upload-{{ $transaction->id }}">
-                        <div class="modal-dialog">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h4 class="modal-title">Unggah Bukti Pembayaran</h4>
-                              <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-                            </div>
+                      {{-- Modal USER: Upload bukti (render hanya untuk pemilik transaksi) --}}
+                      @if($isOwner)
+                        <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"
+                             id="modal-upload-{{ $transaction->id }}">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h4 class="modal-title">Unggah Bukti Pembayaran</h4>
+                                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                              </div>
 
-                            <form action="{{ route('transactions.update', $transaction) }}"
-                                  method="POST" enctype="multipart/form-data">
-                              @csrf
-                              @method('PUT')
-                              <div class="modal-body">
-                                @if($transaction->image)
-                                  <div class="form-group row">
-                                    <img src="{{ asset('storage/'.$transaction->image) }}"
-                                         alt="{{ optional($order)->order_code ?? 'bukti-pembayaran' }}"
-                                         style="width:120px;height:120px;object-fit:cover" class="rounded border">
-                                  </div>
-                                @endif
+                              <form action="{{ route('transactions.update', $transaction) }}"
+                                    method="POST" enctype="multipart/form-data">
+                                @csrf
+                                @method('PUT')
+                                <div class="modal-body">
+                                  @if($transaction->image)
+                                    <div class="form-group row">
+                                      <img src="{{ asset('storage/'.$transaction->image) }}"
+                                           alt="{{ optional($order)->order_code ?? 'bukti-pembayaran' }}"
+                                           style="width:120px;height:120px;object-fit:cover" class="rounded border">
+                                    </div>
+                                  @endif
 
-                                <div class="form-group">
-                                  <label for="payment-file-{{ $transaction->id }}" class="form-label">
-                                    Unggah foto bukti pembayaran
-                                  </label>
-                                  <div class="input-group">
-                                    <div class="custom-file">
-                                      <input type="file"
-                                             class="custom-file-input"
-                                             id="payment-file-{{ $transaction->id }}"
-                                             name="image" accept="image/*">
-                                      <label class="custom-file-label" for="payment-file-{{ $transaction->id }}">
-                                        Pilih file
-                                      </label>
+                                  <div class="form-group">
+                                    <label for="payment-file-{{ $transaction->id }}" class="form-label">
+                                      Unggah foto bukti pembayaran
+                                    </label>
+                                    <div class="input-group">
+                                      <div class="custom-file">
+                                        <input type="file"
+                                               class="custom-file-input"
+                                               id="payment-file-{{ $transaction->id }}"
+                                               name="image" accept="image/*">
+                                        <label class="custom-file-label" for="payment-file-{{ $transaction->id }}">
+                                          Pilih file
+                                        </label>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
 
-                              <div class="modal-footer justify-content-between">
-                                <button type="submit" class="btn btn-primary">Save</button>
-                              </div>
-                            </form>
+                                <div class="modal-footer justify-content-between">
+                                  <button type="submit" class="btn btn-primary">Save</button>
+                                </div>
+                              </form>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      @endif
 
                     @endforeach
                   </tbody>

@@ -92,51 +92,57 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $validatedData = $request->validate([
-            'name' => ['required', 'min:5', 'max:100'],
+            'name'         => ['required', 'min:5', 'max:100'],
             'phone_number' => ['required', 'min:10', 'max:100'],
-            'gender' => ['required'],
+            'gender'       => ['required'],
+            'image'        => ['nullable', 'image', 'max:4096'], // tambahkan validasi image di sini
         ]);
-
-        if ($validatedData['gender'] == 1) {
-            $validatedData['gender'] = true;
-        } else {
-            $validatedData['gender'] = false;
+    
+        $validatedData['gender'] = (int)$validatedData['gender'] === 1;
+    
+        // Jika upload foto baru
+        if ($request->hasFile('image')) {
+    
+            // Hapus foto lama (jika ada)
+            if (!empty($user->image)) {
+                \Storage::disk('public')->delete($user->image);  // $user->image berisi "profiles/namafile.jpg"
+            }
+    
+            // Simpan ke disk 'public' agar bisa diakses via /storage/...
+            // Hasil return: "profiles/xxxx.jpg"
+            $path = $request->file('image')->store('profiles', 'public');
+    
+            // Simpan path RELATIF ke DB (tanpa "storage/" atau path absolut)
+            $validatedData['image'] = $path;
+    
+            // Catatan penting:
+            // TIDAK perlu pakai move() ke public_path(). Biarkan di storage/app/public/profiles.
+            // Aksesnya via symlink /public_html/storage (php artisan storage:link).
         }
-
-        if ($request->file('image')) {
-            $validatedData['image'] = $request->file('image')->store('public_profiles');
-            $image = $request->file('image');
-            $input['imageName'] = $validatedData['image'];
-            $destinationPath = public_path('/public_profiles');
-            $image->move($destinationPath, $input['imageName']);
-        }
-
+    
         $user->update($validatedData);
-
-        if (Gate::allows('isAdmin')) {
-            return redirect('/users')->with('update', 'Data user berhasil diubah');
-        } else {
-            return redirect('/users' . '/' . Auth::id());
-        }
+    
+        return Gate::allows('isAdmin')
+            ? redirect('/users')->with('update', 'Data user berhasil diubah')
+            : redirect('/users/'.Auth::id());
     }
+
 
     public function deleteImage(Request $request)
     {
         $user = User::findOrFail(Auth::id());
-        
-        // Hapus file foto profil dari storage
+    
         if ($user->image) {
-            Storage::delete('public/' . $user->image);
+            \Storage::disk('public')->delete($user->image); // JANGAN tambahkan 'public/' lagi
             $user->image = null;
             $user->save();
         }
     
-        if (Gate::allows('isAdmin')) {
-            return redirect('/users')->with('update', 'Data user berhasil diubah');
-        } else {
-            return redirect('/users' . '/' . Auth::id());
-        }    }
-    
+        return Gate::allows('isAdmin')
+            ? redirect('/users')->with('update', 'Foto profil dihapus')
+            : redirect('/users/'.Auth::id());
+    }
+
 
     /**
      * Remove the specified resource from storage.
