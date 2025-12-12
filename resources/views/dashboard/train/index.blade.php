@@ -568,6 +568,14 @@
     });
     </script>
 
-    <footer class="main-footer"><strong>TJ Trans Executive &copy; {{ date('Y') }}.</strong></footer>
+    <footer class="main-footer">
+    <strong>
+        <a href="https://poliwangi.ac.id/" target="_blank" rel="noopener noreferrer">
+            TJ Trans Executive x Poliwangi © <script>document.write(new Date().getFullYear());</script>
+        </a>
+    </strong> 
+    All rights reserved.
+</footer>
+
 </div>
 @endsection

@@ -12,7 +12,7 @@
             <a href="/dashboard" class="brand-link">
                 <img src="{{ asset('favicon.ico') }}" alt="Sonic Logo"
                     class="brand-image img-circle elevation-3">
-                <span class="brand-text font-weight-light">Sonic</span>
+                <span class="brand-text font-weight-light">TJ Trans Exsecutive</span>
             </a>
 
             <!-- Sidebar Menu -->
@@ -133,19 +133,31 @@
                                                         @endisset
                                                     </td>
                                                     <td>
-
+                                                        {{-- Tombol Ubah tetap sama --}}
                                                         <button class="btn btn-primary btn-xs" type="button"
                                                             data-toggle="modal"
-                                                            data-target="#modal-user-{{ $user->id }}">Ubah
+                                                            data-target="#modal-user-{{ $user->id }}">
+                                                            Ubah
                                                         </button>
 
-                                                        <form action="/users/{{ $user->id }}" method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button class="btn btn-danger btn-xs"
-                                                                type="submit">Hapus</button>
-                                                        </form>
+                                                        @if ($user->role === 'admin' || $user->role === 'Admin')
+                                                            {{-- Admin tidak bisa dihapus --}}
+                                                            <button class="btn btn-secondary btn-xs mt-1" type="button" disabled>
+                                                                Hapus (Admin)
+                                                            </button>
+                                                        @else
+                                                            {{-- User biasa: ada konfirmasi sebelum hapus --}}
+                                                            <form action="/users/{{ $user->id }}" method="POST" class="d-inline"
+                                                                onsubmit="return confirm('Yakin ingin menghapus user ini?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button class="btn btn-danger btn-xs mt-1" type="submit">
+                                                                    Hapus
+                                                                </button>
+                                                            </form>
+                                                        @endif
                                                     </td>
+
 
 
                                                     <div class="modal fade" id="modal-user-{{ $user->id }}">
@@ -271,11 +283,14 @@
         </div>
         <!-- /.content-wrapper -->
         <footer class="main-footer">
-            <strong>Sonic &copy; 2024.</strong>
-            All rights reserved.
-            <div class="float-right d-none d-sm-inline-block">
-            </div>
-        </footer>
+    <strong>
+        <a href="https://poliwangi.ac.id/" target="_blank" rel="noopener noreferrer">
+            TJ Trans Executive x Poliwangi © <script>document.write(new Date().getFullYear());</script>
+        </a>
+    </strong> 
+    All rights reserved.
+</footer>
+
 
         <!-- Control Sidebar -->
         <aside class="control-sidebar control-sidebar-dark">

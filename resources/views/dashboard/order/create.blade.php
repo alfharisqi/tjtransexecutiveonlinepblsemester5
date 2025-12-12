@@ -88,7 +88,6 @@
 /* ====== MOBILE FIXES (<768px) ====== */
 @media (max-width: 767.98px) {
 
-  /* Pills bisa di-scroll horizontal */
   .wizard-pills .nav {
     overflow-x: auto;
     white-space: nowrap;
@@ -100,7 +99,6 @@
     font-size: 13px;
   }
 
-  /* Bar pencarian jadi kolom lebih ramping */
   .tvl-bar {
     flex-direction: column;
     align-items: stretch;
@@ -109,14 +107,12 @@
     border-radius: 10px;
   }
 
-  /* Setiap segmen input */
   .tvl-chip {
     border: 1px solid #e5e7eb;
     border-radius: 10px;
     padding: 8px 10px;
   }
 
-  /* Input dan select full width, font kecil */
   .tvl-field {
     min-width: 0;
     width: 100%;
@@ -129,7 +125,6 @@
     padding: 4px 0;
   }
 
-  /* Ikon & tombol swap lebih kecil */
   .tvl-ic { font-size: 14px; }
   .tvl-swap {
     width: 30px;
@@ -138,7 +133,6 @@
     order: 3;
   }
 
-  /* Tombol search oranye melebar, tapi ramping */
   .tvl-search {
     width: 100%;
     height: 42px;
@@ -148,7 +142,6 @@
     font-weight: 600;
   }
 
-  /* Hero dan kartu */
   .tvl-hero {
     padding: 10px;
     border-radius: 12px;
@@ -160,12 +153,10 @@
     font-size: 16px;
   }
 
-  /* Grid foto & kursi vertikal */
   .tvl-stage {
     grid-template-columns: 1fr;
   }
 
-  /* Kursi sedikit diperkecil */
   .seat {
     width: 32px;
     height: 32px;
@@ -174,14 +165,12 @@
     font-size: 13px;
   }
 
-  /* Tombol navigasi bawah lebih ramping */
   .content .btn {
     min-height: 38px;
     font-size: 14px;
     padding: 6px 10px;
   }
 
-  /* Kurangi padding card */
   .card-body {
     padding: 10px 12px;
   }
@@ -217,11 +206,6 @@
                 <strong>Form Pesanan</strong>
                 <div class="small text-muted">Lengkapi data pemesanan Anda.</div>
               </div>
-              <!-- <div class="d-none d-md-block">
-                <span class="tw-badge">Secure booking</span>
-                <span class="tw-badge">QRIS & VA</span>
-                <span class="tw-badge red">Free cancel (X jam)</span>
-              </div> -->
             </div>
           </div>
 
@@ -290,7 +274,7 @@
                     </div>
                   </div>
 
-                  {{-- Search (orange) --}}
+                  {{-- Search --}}
                   <button type="button" class="tvl-search" id="btnSearch" title="Cek Tiket">🔍</button>
                 </div>
                 <div id="searchMsg" class="tvl-help mt-2"></div>
@@ -516,10 +500,24 @@
           const sortBy=document.getElementById('sortBy');
 
           const ticketAssets=window.__TICKET_ASSETS__ || {};
+
+          // Step 3 elements for validation
+          const step3El = document.querySelector('.step[data-step="3"]');
+          const alamatField = document.querySelector('textarea[name="alamat_lengkap"]');
+          const waField = document.querySelector('input[name="nowhatsapp"]');
+
+          // Step 4 elements for validation (metode pembayaran)
+          const step4El       = document.querySelector('.step[data-step="4"]');
+          const methodField   = document.getElementById('method_id');
+          const nameAccField  = document.querySelector('input[name="name_account"]');
+          const fromAccField  = document.querySelector('input[name="from_account"]');
+
+
           let current=1,ticketsFound=[],ticketsFiltered=[],selectedTicketId=null,occupiedSeats=[],selectedSeats=[],layoutMatrix=[];
           let canProceedToStep2=false,lastSearchToken=null,selectedToken=null;
 
           function token(){return(Math.random().toString(36).slice(2)+Date.now().toString(36))}
+
           function go(step){
             current=step;
             steps.forEach(s=>s.classList.toggle('d-none',Number(s.dataset.step)!==step));
@@ -528,6 +526,139 @@
             btnNext.textContent=(step===4)?'Finish':'Next';
           }
           pills.forEach(p=>p.addEventListener('click',e=>e.preventDefault()));
+
+          // helper error UI
+          function clearFieldError(field) {
+            if (!field) return;
+            field.classList.remove('is-invalid');
+            const fb = field.parentElement.querySelector('.invalid-feedback');
+            if (fb) fb.textContent = '';
+          }
+          function setFieldError(field, msg) {
+            if (!field) return;
+            field.classList.add('is-invalid');
+            let fb = field.parentElement.querySelector('.invalid-feedback');
+            if (!fb) {
+              fb = document.createElement('div');
+              fb.className = 'invalid-feedback';
+              field.parentElement.appendChild(fb);
+            }
+            fb.textContent = msg;
+          }
+
+          function validateStep3() {
+            if (!step3El) return true;
+            let ok = true;
+
+            // reset semua error di step 3
+            step3El.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            step3El.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+
+            // alamat wajib
+            if (alamatField) {
+              const v = (alamatField.value || '').trim();
+              if (!v) {
+                setFieldError(alamatField, 'Alamat wajib diisi.');
+                ok = false;
+              }
+            }
+
+            // WhatsApp wajib & angka saja
+            if (waField) {
+              const v = (waField.value || '').trim();
+              if (!v) {
+                setFieldError(waField, 'Nomor Whatsapp wajib diisi.');
+                ok = false;
+              } else if (!/^[0-9]+$/.test(v)) {
+                setFieldError(waField, 'Nomor Whatsapp hanya boleh angka.');
+                ok = false;
+              }
+            }
+
+            // Nama penumpang wajib & tidak boleh ada angka
+            const nameInputs = step3El.querySelectorAll('input[name^="nama_penumpang_"]');
+            nameInputs.forEach(inp => {
+              const v = (inp.value || '').trim();
+              if (!v) {
+                setFieldError(inp, 'Nama penumpang wajib diisi.');
+                ok = false;
+              } else if (/[0-9]/.test(v)) {
+                setFieldError(inp, 'Nama tidak boleh mengandung angka.');
+                ok = false;
+              }
+            });
+
+            // Umur penumpang wajib (kalau mau)
+            const umurInputs = step3El.querySelectorAll('input[name^="umur_penumpang_"]');
+            umurInputs.forEach(inp => {
+              const v = (inp.value || '').trim();
+              if (!v) {
+                setFieldError(inp, 'Umur penumpang wajib diisi.');
+                ok = false;
+              }
+            });
+
+            if (!ok) {
+              const firstInvalid = step3El.querySelector('.is-invalid');
+              if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }
+
+            return ok;
+          }
+
+          function validateStep4() {
+          if (!step4El) return true;
+          let ok = true;
+
+          // reset error di step 4
+          step4El.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+          step4El.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+
+          // Metode pembayaran wajib
+          if (methodField) {
+            const v = (methodField.value || '').trim();
+            if (!v || v === '-- Pilih Metode --') {
+              setFieldError(methodField, 'Metode pembayaran wajib dipilih.');
+              ok = false;
+            }
+          }
+
+          // Atas Nama wajib & tidak boleh ada angka
+          if (nameAccField) {
+            const v = (nameAccField.value || '').trim();
+            if (!v) {
+              setFieldError(nameAccField, 'Atas Nama wajib diisi.');
+              ok = false;
+            } else if (/[0-9]/.test(v)) {
+              setFieldError(nameAccField, 'Atas Nama tidak boleh mengandung angka.');
+              ok = false;
+            }
+          }
+
+          // Nomor Rekening wajib & hanya angka
+          if (fromAccField) {
+            const v = (fromAccField.value || '').trim();
+            if (!v) {
+              setFieldError(fromAccField, 'Nomor rekening wajib diisi.');
+              ok = false;
+            } else if (!/^[0-9]+$/.test(v)) {
+              setFieldError(fromAccField, 'Nomor rekening hanya boleh angka.');
+              ok = false;
+            }
+          }
+
+          if (!ok) {
+            const firstInvalid = step4El.querySelector('.is-invalid');
+            if (firstInvalid) {
+              firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+
+          return ok;
+        }
+
 
           // dependent dropdown
           const tracks=(window.__TRACKS__||[]);
@@ -644,7 +775,6 @@
               cardEl?.classList.add('active');
               const r=listWrap.querySelector(`input[name="optTicket"][value="${ticketId}"]`); if(r) r.checked=true;
 
-              // photos
               const a=(ticketAssets||{})[String(selectedTicketId)]||{};
               if(a.armada){fleetImg.src=a.armada;fleetName.textContent=(a.name||'-')+(a.class?` (${a.class})`:'');fleetCard.classList.remove('d-none');} else {fleetCard.classList.add('d-none');fleetImg.removeAttribute('src');fleetName.textContent='';}
               if(a.kursi){seatImg.src=a.kursi;seatCard.classList.remove('d-none');} else {seatCard.classList.add('d-none');seatImg.removeAttribute('src');}
@@ -679,9 +809,16 @@
                 <div class="card-body">
                   <h6 class="card-title mb-2">Penumpang ke-${i}</h6>
                   <div class="row">
-                    <div class="col-md-4 mb-2"><label>Nama</label><input name="nama_penumpang_${i}" class="form-control" required></div>
-                    <div class="col-md-4 mb-2"><label>Umur</label><input type="number" min="0" name="umur_penumpang_${i}" class="form-control" required></div>
-                    <div class="col-md-4 mb-2"><label>Jenis Kelamin</label>
+                    <div class="col-md-4 mb-2">
+                      <label>Nama</label>
+                      <input name="nama_penumpang_${i}" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                      <label>Umur</label>
+                      <input type="number" min="0" name="umur_penumpang_${i}" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                      <label>Jenis Kelamin</label>
                       <select name="jenis_penumpang_${i}" class="form-control">
                         <option value="true">Laki-laki</option>
                         <option value="false">Perempuan</option>
@@ -739,7 +876,11 @@
               }catch(e){console.error(e);alert('Gagal validasi.');}
               return;
             }
-            if(current===3){go(4);return;}
+            if(current===3){
+              // >>>> VALIDASI STEP 3 (alamat, no WA angka, nama penumpang tanpa angka) <<<<
+              if (!validateStep3()) return;
+              go(4);return;
+            }
             if(current===4){
               if(!hiddenTicket.value){alert('Tiket belum dipilih.');go(2);return;}
               if(!seatsInput.value){alert('Kursi belum dipilih.');go(2);return;}
@@ -747,7 +888,33 @@
             }
           });
 
-          go(1);
+          // Cegah submit kalau step 4 belum valid (metode pembayaran)
+          const form = document.getElementById('wizard-order');
+          if (form) {
+            form.addEventListener('submit', function(e) {
+              // Pastikan kita validasi bagian pembayaran
+              if (!validateStep4()) {
+                e.preventDefault();      // blok submit ke server
+                go(4);                   // pastikan tetap di slide 4
+              }
+            });
+          }
+
+          // Tentukan step awal berdasarkan error Laravel (kalau ada)
+          let initialStep = 1;
+          @php
+              $hasPayErrors = $errors->has('method_id') || $errors->has('name_account') || $errors->has('from_account');
+              $hasPassengerErrors = $errors->has('alamat_lengkap') || $errors->has('nowhatsapp');
+          @endphp
+
+          @if ($hasPayErrors)
+            initialStep = 4;
+          @elseif ($hasPassengerErrors)
+            initialStep = 3;
+          @endif
+
+          go(initialStep);
+
         });
         </script>
 
@@ -756,8 +923,13 @@
   </div>
 
   <footer class="main-footer">
-    <strong>TJ Trans Executive &copy; {{ date('Y') }}.</strong> All rights reserved.
-  </footer>
+    <strong>
+        <a href="https://poliwangi.ac.id/" target="_blank" rel="noopener noreferrer">
+            TJ Trans Executive x Poliwangi © <script>document.write(new Date().getFullYear());</script>
+        </a>
+    </strong> 
+    All rights reserved.
+</footer>
 
   <aside class="control-sidebar control-sidebar-dark"></aside>
 </div>

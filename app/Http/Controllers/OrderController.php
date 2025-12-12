@@ -220,16 +220,51 @@ class OrderController extends Controller
     {
         // Validasi dasar
         $data = $request->validate([
-            'ticket_id'       => ['required','exists:tickets,id'],
-            'go_date'         => ['required','date'],
-            'amount'          => ['required','integer','min:1'], // tanpa batas max
-            'selected_seats'  => ['required','string'], // CSV "01,02"
-            'alamat_lengkap'  => ['required','string','max:255'],
-            'nowhatsapp'      => ['required','string','max:50'],
-            'method_id'       => ['required','exists:methods,id'],
-            'name_account'    => ['required','string','max:100'],
-            'from_account'    => ['required','string','max:100'],
+            'ticket_id'       => ['required', 'exists:tickets,id'],
+            'go_date'         => ['required', 'date'],
+            'amount'          => ['required', 'integer', 'min:1'], // tanpa batas max
+            'selected_seats'  => ['required', 'string'], // CSV "01,02"
+            'alamat_lengkap'  => ['required', 'string', 'max:255'],
+
+            // WA wajib & hanya angka
+            'nowhatsapp'      => ['required', 'regex:/^[0-9]+$/', 'max:50'],
+
+            // metode wajib & harus ada di tabel methods
+            'method_id'       => ['required', 'exists:methods,id'],
+
+            // Atas nama wajib & tidak boleh ada angka
+            'name_account'    => ['required', 'regex:/^[^\d]+$/', 'max:100'],
+
+            // No rekening wajib & hanya angka
+            'from_account'    => ['required', 'regex:/^[0-9]+$/', 'max:100'],
+        ], [
+            'ticket_id.required'      => 'Tiket wajib dipilih.',
+            'ticket_id.exists'        => 'Tiket tidak ditemukan.',
+
+            'go_date.required'        => 'Tanggal keberangkatan wajib diisi.',
+            'go_date.date'            => 'Format tanggal keberangkatan tidak valid.',
+
+            'amount.required'         => 'Jumlah penumpang wajib diisi.',
+            'amount.integer'          => 'Jumlah penumpang harus berupa angka.',
+            'amount.min'              => 'Minimal 1 penumpang.',
+
+            'selected_seats.required' => 'Kursi wajib dipilih.',
+
+            'alamat_lengkap.required' => 'Alamat lengkap wajib diisi.',
+
+            'nowhatsapp.required'     => 'Nomor Whatsapp wajib diisi.',
+            'nowhatsapp.regex'        => 'Nomor Whatsapp hanya boleh berisi angka.',
+
+            'method_id.required'      => 'Metode pembayaran wajib dipilih.',
+            'method_id.exists'        => 'Metode pembayaran tidak valid.',
+
+            'name_account.required'   => 'Atas Nama wajib diisi.',
+            'name_account.regex'      => 'Atas Nama tidak boleh mengandung angka.',
+
+            'from_account.required'   => 'Nomor rekening wajib diisi.',
+            'from_account.regex'      => 'Nomor rekening hanya boleh berisi angka.',
         ]);
+
 
         $ticket   = Ticket::with(['price','train'])->findOrFail($data['ticket_id']);
         $capacity = $this->capacityForTrain($ticket->train);

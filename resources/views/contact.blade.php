@@ -90,16 +90,14 @@
 				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col-md-12 text-center">
-				<p>
-					TJ Trans Executive &copy;
-					<script>
-						document.write(new Date().getFullYear());
-					</script>
-				</p>
-			</div>
-		</div>
+		<div class="main-footer">
+    <strong>
+        <a href="https://poliwangi.ac.id/" target="_blank" rel="noopener noreferrer">
+            TJ Trans Executive x Poliwangi © <script>document.write(new Date().getFullYear());</script>
+        </a>
+    </strong> 
+    All rights reserved.
+</div>
 	</div>
 </footer>
 

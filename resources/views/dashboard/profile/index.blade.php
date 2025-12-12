@@ -11,7 +11,7 @@
         <!-- Brand Logo -->
         <a href="/dashboard" class="brand-link">
             <img src="{{ asset('favicon.ico') }}" alt="TJ Trans Executive Logo"
-                class="brand-image img-circle elevation-3" style="opacity: .8">            
+                class="brand-image img-circle elevation-3" style="opacity: .8">
             <span class="brand-text font-weight-light">TJ Trans Executive</span>
         </a>
 
@@ -75,7 +75,6 @@
                                     {{ $user->role }}
                                 </h6>
                             </div>
-                            <!-- /.card-body -->
 
                             <div class="card-body">
                                 <p class="text-muted text-center">{{ $user->email }}</p>
@@ -121,9 +120,9 @@
                             </div>
                         </div>
                         <!-- /.card -->
-
                     </div>
                     <!-- /.col -->
+
                     <div class="col-md-9">
                         <div class="card">
                             <div class="card-body">
@@ -136,17 +135,39 @@
                                             <div class="modal-body">
                                                 <div class="form-group row">
                                                     <label for="name" class="col-sm-2 col-form-label">Nama:</label>
-                                                    <input type="text" class="form-control col-sm-10" value="{{ old('name', $user->name) }}" name="name" required>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control col-sm-10"
+                                                        id="name"
+                                                        name="name"
+                                                        value="{{ old('name', $user->name) }}"
+                                                        required
+                                                        pattern="^[A-Za-z\s]+$"
+                                                        title="Nama hanya boleh huruf dan spasi">
                                                 </div>
 
                                                 <div class="form-group row">
                                                     <label for="email" class="col-sm-2 col-form-label">Email:</label>
-                                                    <input type="email" class="form-control col-sm-10" value="{{ old('email', $user->email) }}" disabled>
+                                                    <input
+                                                        type="email"
+                                                        class="form-control col-sm-10"
+                                                        id="email"
+                                                        value="{{ old('email', $user->email) }}"
+                                                        disabled>
                                                 </div>
 
                                                 <div class="form-group row">
                                                     <label for="phone_number" class="col-sm-2 col-form-label">Nomor Telepon:</label>
-                                                    <input type="text" class="form-control col-sm-10" value="{{ old('phone_number', $user->phone_number) }}" placeholder="silakan ketikkan nomor telepon anda" name="phone_number" required>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control col-sm-10"
+                                                        id="phone_number"
+                                                        name="phone_number"
+                                                        value="{{ old('phone_number', $user->phone_number) }}"
+                                                        placeholder="silakan ketikkan nomor telepon anda"
+                                                        required
+                                                        pattern="^[0-9]+$"
+                                                        title="Nomor telepon hanya boleh angka">
                                                 </div>
 
                                                 <div class="form-group row">
@@ -155,7 +176,7 @@
                                                         <select name="gender" id="gender" class="form-control" required>
                                                             @if ($user->gender !== null)
                                                                 <option value="1" {{ $user->gender == 1 ? 'selected' : '' }}>Laki-laki</option>
-                                                                <option value='0' {{ $user->gender == '0' ? 'selected' : '' }}>Perempuan</option>
+                                                                <option value="0" {{ $user->gender == '0' ? 'selected' : '' }}>Perempuan</option>
                                                             @else
                                                                 <option value="" disabled selected>Pilih Jenis Kelamin</option>
                                                                 <option value="1">Laki-laki</option>
@@ -164,7 +185,7 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div class="form-group row">
                                                     <label for="image" class="col-sm-2 col-form-label">Foto Profil:</label>
                                                     <div class="col-sm-10">
@@ -181,7 +202,7 @@
                                             </div>
 
                                             <div class="modal-footer">
-                                                <input type="submit" class="btn btn-success" />
+                                                <input type="submit" class="btn btn-success" value="Simpan Perubahan" />
                                             </div>
                                         </form>
 
@@ -190,7 +211,6 @@
                                             @method('DELETE')
                                             <input type="hidden" name="user_id" value="{{ $user->id }}">
                                         </form>
-                                        
                                     </div>
                                     <!-- /.tab-pane -->
                                 </div>
@@ -207,12 +227,16 @@
         <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
+
     <footer class="main-footer">
-        <strong>TJ Trans Executive &copy; 2025.</strong>
-        All rights reserved.
-        <div class="float-right d-none d-sm-inline-block">
-        </div>
-    </footer>
+    <strong>
+        <a href="https://poliwangi.ac.id/" target="_blank" rel="noopener noreferrer">
+            TJ Trans Executive x Poliwangi © <script>document.write(new Date().getFullYear());</script>
+        </a>
+    </strong> 
+    All rights reserved.
+</footer>
+
 
     <!-- Control Sidebar -->
     <aside class="control-sidebar control-sidebar-dark">
@@ -223,6 +247,7 @@
 <!-- ./wrapper -->
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     const delBtn = document.getElementById('deleteProfileImage');
     if (delBtn) {
@@ -255,5 +280,24 @@
             }
         });
     });
+</script>
+
+{{-- Validasi tambahan: Nama tidak boleh angka, No HP tidak boleh huruf --}}
+<script>
+    // Nama: hanya huruf & spasi
+    const nameInput = document.getElementById('name');
+    if (nameInput) {
+        nameInput.addEventListener('input', function () {
+            this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+        });
+    }
+
+    // Nomor HP: hanya angka
+    const phoneInput = document.getElementById('phone_number');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    }
 </script>
 @endsection

@@ -307,9 +307,13 @@
   </div>
 
   <footer class="main-footer">
-    <strong>TJ Trans Executive &copy; 2025.</strong> All rights reserved.
-    <div class="float-right d-none d-sm-inline-block"></div>
-  </footer>
+    <strong>
+        <a href="https://poliwangi.ac.id/" target="_blank" rel="noopener noreferrer">
+            TJ Trans Executive x Poliwangi © <script>document.write(new Date().getFullYear());</script>
+        </a>
+    </strong> 
+    All rights reserved.
+</footer>
 
   <aside class="control-sidebar control-sidebar-dark"></aside>
 </div>

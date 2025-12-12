@@ -95,6 +95,7 @@ class DriverAuthController extends Controller
         Auth::guard('driver')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('driver.login');
+        return redirect('/driver/login');
+
     }
 }
